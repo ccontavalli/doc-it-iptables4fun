@@ -50,6 +50,14 @@ lo trovate utile e volete aggiungere / togliere sezioni, o avere
 nuovi argomenti trattati, sentitevi liberi di mandare patch o
 modifiche, come consono in github.
 
+Per leggere questo tutorial, potete:
+
+   * Scaricarlo nel formato per voi piu\` conveniente. Per esempio,
+     potete usare
+     [il .pdf](http://goo.gl/BhWRs6) oppure [il .txt](http://goo.gl/H4xN8M).
+
+   * Navigare il tutorial online, [utilizzando questo link](http://goo.gl/xmTs5M).
+
 
 Come modificare il tutorial
 ===========================
