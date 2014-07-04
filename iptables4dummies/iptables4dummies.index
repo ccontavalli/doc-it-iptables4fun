@@ -1,0 +1,87 @@
+Copyright e note legali...
+Prima di cominciare
+  Storia delle revisioni
+  Versioni future di questo documento
+Nozioni di base sui firewall
+  Tipologie di firewall
+    Firewall stateless e firewall statefull
+    Firewall e protocolli
+    Proxy server
+    Socks server
+Introduzione ai protocolli di rete
+  Gli albori di Internet
+    Commutazione di pacchetto
+    Protocolli
+  Il protocollo IP
+    Indirizzi e netmask
+    Routing
+    Header IP
+  Il protocollo ICMP
+  Il protocollo UDP 
+  Il protocollo TCP 
+    Three way Handshake
+  L'ARP
+  I protocolli applicativi
+    Il DNS
+    L'HTTP
+    FTP
+    SMTP
+Preparare il proprio sistema
+  Procurarsi i sorgenti
+    Se usate debian...
+  Patchare e prepararsi a ricompilare...
+    iptables 1.2.6 - Usare il patch-o-matic
+    iptables 1.2.7 - Usare il patch-o-matic
+      iptables 1.2.7 - in Debian
+    Altre patch
+  Preparare il kernel
+    Configurarlo
+    Ricompilarlo
+      In Debian
+  Compilare iptables
+  Compilare iproute
+    In Debian
+Hardening the system 
+  Ridurre i punti di ingresso
+    inetd.conf
+    Directory /etc/init.d
+    Demoni
+  Ripulire il sistema
+  Rilevare le intrusioni
+Pericoli -- ovvero, da cosa dovrà difendervi il firewall
+  Assunzioni errate
+  Sicurezza degli switch
+Preparare il kernel ad andare in rete -- overview di /proc 
+  Utilizzo dei file in /proc
+  Alcuni file importanti
+Filtrare il traffico con iptables
+  Iptables: catene, tabelle e regole...
+    Target di base e algoritmo di matching
+      Dettagli sul codice di netfilter e sulla scelta delle catene
+    Definizione delle politiche di default
+    Prime regole
+    Operazioni di base sulle regole
+    Creare nuove catene
+  Iptables: configurare un firewall
+    Perchè usare le catene
+  Iptables: esempi concreti
+  Iptables: come funziona
+Modificare il traffico con iptables
+  NAT: Tabelle di mangle e nat
+  NAT: Come utilizzarlo
+  NAT: esempi concreti
+  NAT: come funziona
+Mettere tutto insieme
+  Configurazione dei client
+  Manipolare le catene
+  Salvare le modifiche
+Troubleshooting
+  Capire cosa c'è che non va
+    Problemi fisici
+      Problemi frequenti
+    Problemi di configurazione
+    Problemi fisici di comunicazione
+    Problemi di configurazione del client
+    Problemi di configurazione del firewall
+    Problemi nelle regole di firewalling o nat
+Conclusioni
