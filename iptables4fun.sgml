@@ -9,7 +9,7 @@ Carlo Contavalli -- Copyright &copy; 2000-2003
 </author>
 
 <date>
-$Revision: 1.9 $ -- $Date: 2003/05/01 15:58:16 $
+$Revision: 1.12 $ -- $Date: 2003/07/29 3:12:46 $
 </date>
 
 <abstract>
@@ -75,15 +75,15 @@ An updated version of this document can be found on
 different formats.
 
 <sect>Prima di cominciare<p>
-Questa che state leggendo è la seconda versione (precisamente, $Revision: 1.9 $) di un 
+Questa che state leggendo è la seconda versione (precisamente, $Revision: 1.12 $) di un 
 documento che scrissi parecchio tempo fa, agli albori del kernel 2.4. 
 Da allora, diverse versioni del kernel sono state rilasciate e nuove funzionalit&agrave;
 sono state lentamente introdotte. Troverete quindi notevoli differenze tra questa
 versione e le versioni precedenti, sia in termini di contenuto tecnico sia in termini
 di linguaggio utilizzato. <p>
-Nelle versioni dalla 2.0 in poi, inoltre, il nome di questo tutorial &egrave; 
-stato cambiato da ``iptables for dummies'' a ``iptables for fun'', al fine di sottolineare
-l'estraneit&agrave; di questo documento con la serie ``for dummies'' pubblicata in libreria
+Nelle versioni dalla 1.9 in poi, inoltre, il nome di questo tutorial &egrave; 
+stato cambiato da ``Iptables for Dummies'' a ``Iptables for Fun'', al fine di sottolineare
+l'estraneit&agrave; dello stesso dalla serie ``for dummies'' pubblicata in libreria
 e di evitare problemi che si sarebbero potuti venire a creare in relazione a 
 marchi, trademark o diritti della ``Hungry Minds'', diritti che non intendo in 
 alcun modo violare.<p>
@@ -100,8 +100,18 @@ che spero ora aver corretto, o semplicemente incoraggiandomi
 nell'andare avanti, contribuendo a migliorare il documento
 che anche voi state leggendo.<p>
 Mi scuso se qualche volta non ho avuto il tempo di 
-rispondere alle vostre email o se non sono stato in grado 
+rispondere alle vostre email o se non sono sempre stato in grado 
 di esservi di aiuto.<p>
+Purtroppo (pi&ugrave; che altro per me), non riesco a dedicare a 
+questo tutorial il tempo di cui avrebbe bisogno e le nuove sezioni 
+su cui (ormai da mesi) sto lavorando verranno introdotte sempre
+pi&ugrave; lentamente, quasi tanto quanto le correzioni che
+gentilmente mi avente inviato.<p>
+<!--
+Per questo ed altri motivi, e per aiutare voi ad aiutare me,
+ho aperto una mailing list, disponbile all'indirizzo: 
+<url url="http://ml.masobit.net/ccontavalli/docs-it/">.<p>
+-->
 Comunque sia, versioni aggiornate di questo documento potranno 
 essere reperite su <url url="http://www.commedia.it/ccontavalli/&num;docs-it">.<p>
 Inoltre, nel corso di questo tutorial, quando si parlerà di IP e di protocolli di 
@@ -124,28 +134,13 @@ iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -t nat -A POSTROUTING -s nostrareteinterna/24 -j MASQUERADE
 echo 1 > /proc/sys/net/ipv4/ip_forward
 </verb></tscreen>
-dove <it/ip_rete_interna/ pu&ograve;, per esempio, essere sostituito con 10.0.0.0 o
-192.168.0.0. Con queste ultime regole, consentirete ai computer della vostra 
+dove <it/ip_rete_interna/ pu&ograve;, per esempio, essere sostituito con 10.0.0.0 
+o 192.168.0.0. Con queste ultime regole, consentirete ai computer della vostra 
 rete che avranno impostato come gateway l'indirizzo ip del vostro firewall di
 condividere la connessione ADSL, ISDN o il vostro modem 56k (se siete
 abbastanza coraggiosi) ad esso collegati.
 
-<sect1>Storia delle revisioni<p>
-<enum>
-  <item><bf/In quest'ultima versione (2.0)/:
-    <itemize>
-      <item>E' stato cambiato il titolo :-)
-      <item>E' stato rivisto ``l'abstract''
-      <item>E' stata rivista la sezione ``Prima di cominciare''
-      <item>In questa sezione, sono state aggiunte le sottosezioni
-      		``Storia delle revisioni'' e ``Versioni future'' 
-    </itemize>
-
-  <item><bf/Versione 1.7/: seconda versione pubblicata su internet,
-  	completamente rivista rispetto alla prima
-  <item><bf/Versione 1.0/: prima versione pubblicata su internet
-</enum>
-
+<!--
 <sect1>Versioni future di questo documento<p>
 Molte nuove sezioni sono attualmente ``under construction'' e spero che a 
 poco a poco verranno rese disponibili. Vi do qui una piccola anteprima, in modo
@@ -166,6 +161,19 @@ possiate farlo mandandomi semplicemente una mail:
   <item>Creare firewall trasparenti con il proxy arp (20% completa).
   <item>Una piccola introduzione al traffic shaping e all'utilizzo di tc (5% completa).
 </itemize>
+-->
+
+<sect1>Ringraziamenti<p>
+Non c'&egrave; dubbio che per il tempo che mi hanno dedicato o per l'aiuto
+che mi &egrave; stato dato (anche solo inviandomi commenti o incoraggiandomi
+nell'andare avanti), debba
+ringraziare:<p>
+Andrea Ciancone, Guido Caruso, Gianluca D'inc&agrave;, Giovanni Bassetto, 
+Gabriele Biarese, Matteo Nastasi, Gianluca, Tony Arcucci, BlueRaven
+<p>
+e tutti gli amici del linux_var <url url="http://www.linuxvar.it">,
+nonch&eacute; coloro che ho dimenticato di citare in questa lista
+(mandatemi una mail!).<p>
 
 <sect>Nozioni di base sui firewall<p>
 Prima di entrare nel cuore della trattazione, conviene fare una 
@@ -354,14 +362,13 @@ notoriamente bacati. Ricordatevi infine che un socks server costituisce spesso l
 alternativa per poter utilizzare alcuni programmi in rete, a meno di sviluppare un apposito 
 modulo per il kernel.<p>
 
-
 <!--
 <sect>Introduzione ai protocolli di rete<p>
-In questa sezione si parler&agrave; brevemente dei vari protocolli che popolano il mondo di internet,
+In questa sezione parlerò brevemente dei vari protocolli che popolano il mondo di internet,
 delle tipologie di firewall e degli strumenti messi a disposizione per essere in grado di gestire 
 in maniera efficiente il traffico di una rete. Se avete già configurato un firewall o se 
 avete una discreta conoscenza di come funziona una rete TCP/IP, potete allegramente saltare
-questa sezione e passare alla successiva senza troppi rimpianti. In caso contrario, questa sezione
+questa sezione e passare alla successiva senza alcun rimpianto. In caso contrario, questa sezione
 vi darà le nozioni di base per poter per lo meno comprendere i paragrafi successivi.<p>
 
 <sect1>Gli albori di Internet<p>
@@ -925,7 +932,7 @@ caso, star&agrave; alla vostra abilit&agrave; ottenere qualcosa di funzionante.
 Ok, in questo caso, dovrete avere a disposizione sia i sorgenti di iptables, sia
 i sorgenti del patch-o-matic. Dall'1.2.7 in poi, infatti, i sorgenti del patch-o-matic
 vengono distribuiti indipendentemente dal codice di iptables. <p>
-Ipotizzando di aver decompresso tutto in <file>/usr/src<file>, dovrete iniziare
+Ipotizzando di aver decompresso tutto in <file>/usr/src</file>, dovrete iniziare
 entrando nella directory del patch o matic, ovvero
 <tscreen><verb>
   # cd patch-o-matic-xxxxxxxx
@@ -1476,6 +1483,109 @@ rimosso dal sistema :-).<p>
         e può garantirvi un grado di sicurezza maggiore.
  <item>Se sul sistema vi saranno altri utenti oltre root, date un'occhiata alle restrizioni imposte dalla 
  	pam (<file>/etc/pam.d</file>) agli utenti ed al file <file>/etc/login.defs</file>.
+ <item>Se avete un kernel relativamente recente, date un'occhiata al comando ``lcap'' (in Debian, installate
+       l'omonimo pacchetto, con ``apt-get install lcap''). lcap &egrave; un comando che vi consente di
+       dire al kernel che <bf/non/ volete pi&ugrave; usufruire di determinati servizi (capability, ovvero
+       ``capacit&agrave;'' del kernel). Una volta detto questo al kernel, le capability non potranno
+       pi&ugrave; essere acquisite dal kernel, a meno che la macchina non venga spenta e riavviata.
+       Il fatto che il kernel di linux perda determinate ``capacit&agrave;'' pu&ograve; quindi dare 
+       notevoli vantaggi dal punto di vista della sicurezza. Utilizzando il comando ``lcap'' senza
+       alcun argomento, vi verr&agrave; data una lista delle ``capacit&agrave;'' che il kernel
+       pu&ograve; decidere di lasciare, come per esempio:
+       <tscreen><verb>
+Current capabilities: 0xFFFFFEFF
+   0) *CAP_CHOWN                   1) *CAP_DAC_OVERRIDE         
+   2) *CAP_DAC_READ_SEARCH         3) *CAP_FOWNER               
+   4) *CAP_FSETID                  5) *CAP_KILL                 
+   6) *CAP_SETGID                  7) *CAP_SETUID               
+   8)  CAP_SETPCAP                 9) *CAP_LINUX_IMMUTABLE      
+  10) *CAP_NET_BIND_SERVICE       11) *CAP_NET_BROADCAST        
+  12) *CAP_NET_ADMIN              13) *CAP_NET_RAW              
+  14) *CAP_IPC_LOCK               15) *CAP_IPC_OWNER            
+  16) *CAP_SYS_MODULE             17) *CAP_SYS_RAWIO            
+  18) *CAP_SYS_CHROOT             19) *CAP_SYS_PTRACE           
+  20) *CAP_SYS_PACCT              21) *CAP_SYS_ADMIN            
+  22) *CAP_SYS_BOOT               23) *CAP_SYS_NICE             
+  24) *CAP_SYS_RESOURCE           25) *CAP_SYS_TIME             
+  26) *CAP_SYS_TTY_CONFIG       
+    * = Capabilities currently allowed
+      </verb></tscreen>
+      Ad esempio, con ``lcap CAP_CHOWN'' il kernel mollerebbe la capacit&agrave; di far andare la
+      chiamata di sistema CHOWN, rendendo impossibile il cambio di proprietario di un file.
+      Eseguendo quindi il comando ``chown'', questo ci restituirebbe un errore del tipo ``Operation
+      not permitted''. In breve, disattivare la capacit&agrave; del kernel:
+      <itemize>
+        <item>CAP_CHOWN -- inibisce il cambio di proprietario di un file, blocca il comando chown.
+		Attenzione che, ad esempio in Debian, ogni volta che un utente completa il login
+		viene fatto un chown sul dispositivo corrispondente alla sua console, onde evitare
+		che altri (senza la sua autorizzazione) possano scrivere su tale dispositivo. Bloccare
+		chown bloccher&agrave; quindi l'accesso a <bf/tutti/, compreso l'amministratore,
+		a meno che questa feture non venga disabilitata.
+	<item>CAP_NET_BIND_SERVICE -- inibisce l'apertura di porte TCP o UDP inferirori alla 1024, 
+		impedendo il caricamento di nuovi servizi su porte standard.
+	<item>CAP_NET_ADMIN -- inibisce: il cambio di configurazione delle interfacce di rete o
+	        la configurazione di nuove interfacce, le operazioni di amministrazione del codice
+		di firewalling, nat, accounting, l'abilitazione del debugging sulle socket, la 
+		modifica delle tabelle di routing, l'abilitazione/disabilitazione del promiscuous
+		mode e altre.
+	<item>CAP_SYS_MODULE -- inibisce il caricamento o la rimozione di moduli.
+	<item>CAP_SYS_CHROOT -- inibisce l'utilizzo di jail root, ovvero del comando chroot.
+	<item>CAP_SYS_PACCT -- inibisce il cambio di configurazione del process accounting <!-- CROSS -->.
+	<item>CAP_SYS_BOOT -- inibisce la possibilit&agrave; di riavviare la macchina tramite
+		comandi.
+	<item>CAP_SYS_RESOURCE -- inibisce il cambio dei limiti di risorse imposti ai vari
+		processi o delle quote imposte su disco (per fs ext2).
+	<item>CAP_SETUID -- inibisce l'utilizzo di programmi suid.
+	<item>CAP_LINUX_IMMUTABLE -- inibisce la possibilit&agrave; di cambiare il flag 
+	 	immutabile tramite il comando ``chattr''
+	<item>CAP_NET_RAW -- inibisce la possibilt&agrave; di aprire PACKET o RAW socket,
+		ovvero quelle socket che consentono a programmi come hping o nmap di
+		scrivere direttamente i pacchetti sulle interfacce di rete.
+	<item>CAP_SYS_RAWIO -- inibisce la possibilit&agrave; di accedere direttamente
+		ai dispositivi fisici. In pratica, non sar&agrave; pi&ugrave; possibile
+		accedere a /dev/hda, /dev/hdb e cos&igrave; via.
+	<item>CAP_SYS_PTRACE -- inibisce l'utilizzo di ``ptrace()'', la chiamata che 
+		consente a comandi come strace, ltrace o gdb di seguire il comportamento
+		di un processo. 
+	<item>CAP_SYS_ADMIN -- inibisce:
+		<itemize>
+		  <item>la configurazione di quote su disco, la creazione di dispositivi,
+		  	l'amministrazione di /dev/random e urandom.
+		  <item>la configurazione dei messaggi inviati dal kernel a syslog, il cambio
+		  	di nome di dominio, il cambio di hostname.
+		  <item>l'utilizzo di mount e umount, l'abilitazione disabilitazione dello swap,
+		    	la configurazione di dispositivi raid ed il tuning dei parametri ide.
+		</itemize>
+		e cos&igrave; via.
+	</itemize>
+	Per maggiori informazioni, potete dare un'occhiata a ``lids.planetmirror.com'' <!-- CROSS -->
+	oppure cercare le ``capacit&agrave;'' direttamente in google.
+	L'utilizzo di ``lcap'' apre diversi nuovi orizzonti. Si potrebbe, per esempio, inserire
+	in init.d uno script simile al seguente: 
+<tscreen><verb>
+	#!/bin/bash
+
+	lcap CAP_NET_BIND_SERVICE CAP_NET_ADMIN CAP_SYS_MODULE CAP_SYS_PACCT \
+	     CAP_SYS_RESOURCE CAP_SETUID CAP_LINUX_IMMUTABLE CAP_NET_RAW CAP_SYS_RAWIO \
+	     CAP_SYS_PTRACE CAP_SYS_ADMIN
+</verb></tscreen>
+	in modo da disabilitare la maggior parte delle funzioni che potrebbero risultare
+	pericolose. Allo stesso modo, utilizzando il comando ``chattr +i'' si potrebbero
+	impostare come immutabili tutti i file coinvolti con il processo di boot, cos&igrave;
+	da impedire che il sistema possa essere riavviato senza chiamare ``lcap''.
+	Per avere ancora una maggior sicurezza, si potrebbe poi disabilitare il ``reboot''
+	del sistema, in modo che da remoto, anche ipotizzando che un attaccante possa
+	riuscire a far s&igrave; che lcap non venga chiamato nel prossimo reboot, il
+	sistema non possa essere riavviato senza la presenza fisica di una persona
+	in sala macchine. In pi&ugrave;, lasciare la capacit&agrave; CAP_NET_ADMIN
+	e CAP_NET_RAW impedir&agrave; all'attaccante di installare degli sniffer che 
+	impostino l'interfaccia in promiscuous mode ed il cambio delle regole di
+	firewalling. <p>
+	Questo stesso script, potrebbe poi essere inserito in ``runlevel 2'',
+	creando un link da /etc/rc2.d/S99-lcap a /etc/init.d/script_appena_creato,
+	in modo che specificando qualcosa come ``runlevel=3'' dal prompt di lilo
+	e di grub sia possibile accedere al sistema senza i limiti imposti da 
+	questo comando.
 </itemize>
 
 <sect1>Rilevare le intrusioni<p>
@@ -1498,10 +1608,28 @@ rete. Alcuni che vi posso consigliare sono:
   <item>tcpdump, nel caso in cui il peggio accada, per loggare tutto il traffico
    	e tentare di risalire al colpevole (creando, magari, uno script che lo carichi
 	come demone con delle opzioni tipo -nei eth0 -s 2048 -w /var/log/traffic.dump).
-  <item>utility per l'accounting (acct), per tenere traccia dei comandi eseguiti 
-  	e dei processi.
 </itemize>
 E molti altri... (suggerimenti sono benvenuti).
+
+<sect2>Process accounting<p>
+Abilitando nel kernel l'opzione ``General Setup/BSD Process Accounting'' &egrave; 
+possibile utilizzare
+il ``process accounting''. Il ``process accounting'' consente di mantenere
+delle statistiche su ogni comando eseguito sul sistema, statistiche come
+l'utente che l'ha eseguito, la cpu che ha utilizzato, il tempo che e`
+stato eseguito e simili.<p>
+Per utilizzare il process accounting &egrave; possibile installare
+utility come ``acct'', ``lastcomm'' ed ``sa'', in Debian contenute tutte
+nel pacchetto ``acct''. Questo stesso pacchetto si occupa durante
+il processo di boot di chiamare ``accton nomefile.log'', che altro
+non fa che abilitare il process accounting dicendo al kernel di
+salvare le informazioni acquisite nel file di log indicato, generalmente
+``/var/account/pacct''.<p>
+Una volta abilitato, sar&agrave; possibile utilizzare utility
+come ``sa'', per avere delle statistiche sugli ultimi comandi eseguiti e
+``lastcomm'' per vedere i comandi eseguiti da ogni utente, divisi
+per tempo di esecuzione, terminale da cui sono stati lanciati e da
+alcuni flag indicanti come il comando sia stato eseguito.
 
 <sect>Pericoli -- ovvero, da cosa dovr&agrave; difendervi il firewall<p>
 Per rendere la trattazione pi&ugrave; semplice, &egrave; meglio chiarirsi 
@@ -1536,7 +1664,7 @@ fondamentali per almeno due motivi:
   <item>Per evitare un effetto ``domino'', per evitare cio&egrave; che ``caduto'' (bucato) un
   	server, questo possa essere sfruttato per far ``cadere'' tutti gli altri. Spesso infatti, quando una ditta dispone
 	di pi&ugrave; server, vengono impostate delle politiche meno restrittive (se queste vengono
-	impostate) per le comunicazioni da un server all'altro, che potrebbero consentire ad 
+	impostate) per le comunicazioni da un server all'altro che potrebbero consentire ad 
 	un attaccante di bucare una macchina e da l&igrave; bucare tutte le altre.
   <item>Per evitare che la vostra macchina possa essere utilizzata per sferrare attacchi a terzi.
   	Se tutti utilizzassero delle politiche di questo tipo sarebbe molto pi&ugrave; facile
@@ -1545,7 +1673,7 @@ fondamentali per almeno due motivi:
 Una configurazione normalmente utilizzata che tiene in considerazione
 tutti i punti sopra elencati fa uso di quella che viene detta una DMZ, ovvero di una
 ``Zona Demilitarizzata''.<p>
-In pratica, la rete di un'azienda viene divisa dal punto di vista hardware in tre segmenti, ed il firewall
+In pratica la rete di un'azienda viene divisa dal punto di vista hardware in tre segmenti, ed il firewall
 viene dotato di 3 schede di rete (ognuna collegata ad un segmento). Di queste schede,
 una viene collegata alla rete interna (utilizzata, per esempio, dai dipendenti), una collegata ad internet 
 mentre l'ultima ad una piccola rete che conterr&agrave; soltanto i vostri server.<p> 
@@ -1615,8 +1743,9 @@ che in una rete:
 	venga presa), soprattutto in una lan, dove &egrave; estremamente facile falsificare dei 
 	pacchetti. In pi&ugrave; spesso si parte dall'assunzione che se la comunicazione 
 	tra client e dns &egrave; sicura allora i dati forniti dal dns sono corretti. Anche in
-	questo caso esistono delle tecniche (usate per lo pi&ugrave; in passato) che consentono
-	di inserire nel dns informazioni false (cache poisoning). Infine, l'amministratore
+	questo caso esistono delle tecniche (usate per lo pi&ugrave; in passato o con software
+	dns di pessima qualit&agrave; - compresi quelli inclusi in alcuni sistemi operativi) che 
+	consentono di inserire nel dns informazioni false (cache poisoning). Infine, l'amministratore
 	del vostro dns (o qualcuno in grado di gestire il dns da voi utilizzato), pu&ograve; 
 	modificare quasi a piacimento le associazioni tra nomi di dominio ed indirizzi ip forniti
 	da tale dns. Non si dovrebbe quindi mai fare affidamento sull'autenticit&agrave; e 
@@ -1624,9 +1753,9 @@ che in una rete:
   <item><bf/tutti i dati, se non cifrati, possono essere intercettati e letti da 
   	chiunque si trovi tra il mittente e il destinatario/
   <item><bf/se un protocollo &egrave; cifrato, non &egrave; detto che sia sicuro/ -- un problema
-  	di internet e delle reti in generale, non &egrave; soltanto il fatto che i dati 
+  	di internet e delle reti in generale non &egrave; soltanto il fatto che i dati 
 	possono essere facilmente intercettati. Anche ipotizzando che tutte le connessioni 
-	fossero cifrate, si creerebbe un problema di autenticazione. Per fare un esempio, se A deve 
+	fossero cifrate, si creerebbe un problema di <it/autenticazione/. Per fare un esempio, se A deve 
 	mandare dei dati a B in maniera sicura, pu&ograve; creare un canale 
 	cifrato da A a B. Ma come fa A ad essere veramente sicura dell'identit&agrave; di B?
 	Se io fossi C, interessato ai dati trasmessi, potrei fingermi B (con
@@ -1639,11 +1768,27 @@ che in una rete:
 	ad ogni connessione.<p> 
 	Con protocolli come l'http, l'ftp, o la posta elettronica (sia pop che imap e smtp),
 	&egrave; possibile fare uso di ``certificati'' emessi da particolari autorit&agrave;
-	che provino l'identit&agrave; del server.<p>
+	(autorit&agrave; che si fanno garanti della identit&agrave; dell'utilizzatore del
+	certificato) che provino l'identit&agrave; del server.<p>
+	In Italia purtroppo, per risparmiare qualche euro, si &egrave; instaurata la pratica
+	di generare da s&eacute; i propri certificati senza utilizzare quelli emessi da
+	particolari autorit&agrave; anche in strutture che per dimensioni, per necessit&agrave;,
+	e per competenze tecniche dovrebbero per lo meno porsi qualche problema (parlo di 
+	universit&agrave;, enti pubblici, e di alcune strutture che costituiscono lo scheletro
+	di internet in Italia). Vorrei pertanto approfittare di questo documento per evidenziare 
+	che se un certificato non &egrave; emesso da una autorit&agrave; riconosciuta o da 
+	un'autorit&agrave; terza di cui avete ottenuto i certificati in maniera sicura 
+	(<bf/non/ scaricandoli da internet), la validit&agrave; del certificato stesso dovrebbe 
+	essere considerata <bf/nulla/. Non ignorate quindi la finestrella di IE o Mozilla
+	che vi si presenta davanti dicendo che il certificato del sito non &egrave; valido:
+	chiunque potrebbe aver generato tale certificato
+	(man 1 openssl) ed essersi messo in mezzo tra voi ed il vostro sito. Non siate
+	tolleranti e mandate email all'amministratore di tale rete finch&eacute; non avr&agrave; 
+	acquistato un valido certificato!<p>
 	Protocolli di autenticazione come kerberos invece, partono dal principio che non
 	&egrave; solo l'utente a dover provare la sua identit&agrave; ma anche il server remoto. 
 	In questo caso, se il server non &egrave; chi dichiara di essere non sar&agrave; in 
-	grado di decifrare i dati dell'utente.
+	grado di decifrare i dati dell'utente stesso.
   <item><bf/un firewall non &egrave; in grado di garantirvi la sicurezza/ -- 
   	se sulla vostra rete usate sistemi operativi notoriamente insicuri,
 	potreste trovarvi facilmente dei troiani (virus particolari)
@@ -1688,7 +1833,9 @@ che in una rete:
 	dovrebbe dirla lunga sull'assenza di backdoor e sulla sicurezza del prodotto.<p>
 	Infine, se la vostra preoccupazione maggiore &egrave; la sicurezza, ricordatevi
 	che spesso questo non &egrave; l'interesse maggiore di chi 
-	vi vende un prodotto. Non accontentatevi di belle parole o pubblicit&agrave;
+	vi vende un prodotto (e non sta a me ricordarvi che viviamo in un mondo dove 
+	l'economia &egrave; basata sul marketing e sulla massimizzazione dei guadagni). 
+	Non accontentatevi di belle parole o pubblicit&agrave;
 	accattivanti: se vi verr&agrave; rilasciato il codice sorgente sarete in grado
 	di verificare in prima persona la qualit&agrave; del prodotto.
 
@@ -1739,7 +1886,7 @@ Questo modello presenta diversi problemi:
 	stesso computer, lo switch, normalmente, riinvier&agrave; i dati trasmessi su
 	entrambi i cavi).
   <item>In secondo luogo, gli switch sono collegabili in cascata. Questo comporta che nella
-  	tabella nella memoria dello switch, ad ogni cavo possa essere associato pi&ugrave;
+  	tabella nella memoria dello switch ad ogni cavo possa essere associato pi&ugrave;
 	di un computer. La memoria di uno switch, per&ograve;, ha dimensione limitata e la
 	maggior parte degli switch si comporter&agrave; esattamente come un hub nel caso
 	esaurisse la memoria e non fosse pi&ugrave; in grado di mantenere tale tabella.<p>
@@ -1755,10 +1902,10 @@ Questo modello presenta diversi problemi:
 	comprometta la funzionalit&agrave; dei soli computer connessi a tale apparecchio.<p>
 	Per consentire l'utilizzo di percorsi multipli, gli switch devono costruirsi una
 	sorta di ``mappa'' della rete in modo da sapere che percorso far fare ai vari pacchettini
-	e di evitare che si vengano a creare dei loop (pacchetti che continuano a rimbalzare
+	per evitare che si vengano a creare dei loop (pacchetti che continuano a rimbalzare
 	da uno switch ad un altro senza mai arrivare a destinazione). Per costruire questa
 	mappa, gli switch devono comunicare tra di loro con un protocollo chiamato spanning
-	tree protocol (IEEE 802.1, scambiandosi quelli che vengono detti BPDU). In questo caso, 
+	tree protocol (IEEE 802.1d, scambiandosi quelli che vengono detti BPDU). In questo caso, 
 	quindi, un computer collegato allo switch potrebbe falsificare
 	i dati del protocollo spanning tree in modo da far credere di essere a sua volta
 	uno switch e di costituire il percorso pi&ugrave; breve per raggiungere determinati
@@ -1819,7 +1966,7 @@ e per renderne pi&ugrave; facile l'utilizzo.
 Per conoscere il valore delle variabili impostate in tali file, &egrave; sufficiente 
 leggere il contenuto del file stesso, utilizzando, per esempio, un ``cat nomefile''.<p>
 Per modificare tale valore, &egrave; sufficiente scrivere il nuovo valore
-all'interno del file utilizzando un editor di testo oppure (molto meglio) un comando 
+all'interno del file utilizzando un comando 
 simile a ``echo nuovovlaore > nomefile''.<p>
 Per convenzione, una variabile che pu&ograve; assumere come valore 
 ``vero'' o ``falso'' oppure ``attivo'' o ``inattivo'' avr&agrave;
@@ -1837,7 +1984,7 @@ dovrete scrivere la ``variabile'' seguita da un ``='' e dal valore
 che volete assegnare. Il nome della variabile corrisponde al nome
 del file nella directory di proc, togliendo per&ograve; ``/proc/sys''
 e sostituendo dei ``.'' alle ``/''. Per esempio, per disabilitare
-per sempre i ping di broadcast, sar&agrave; sufficiente aggiungere
+per sempre l'utilizzo dell'ecn, sar&agrave; sufficiente aggiungere
 la riga:
 <tscreen><verb>
 net.ipv4.tcp_ecn=0
@@ -1864,12 +2011,16 @@ In quest directory, dovreste trovare alcuni file tra cui:
 	una persona qualsiasi mandasse un ping (aka icmp echo request) a 16 milioni 
 	di computer, utilizzando come destinazione un indirizzo di broadcast
 	e come mittente l'indirizzo ip del vostro computer.<p>
+	Con una cinquantina di byte, vi manderebbe contro circa 16 milioni 
+	di risposte al ping... (fortunatamente, la maggior parte dei computer
+	in rete non rispondono a ping di broadcast).<p>
 	Questa variabile viene principalmente utilizzata all'interno di
 	net/ipv4/icmp.c:icmp_rcv.
   <item><it/icmp_ignore_bogus_error_responses/ -- disabilita o abilita 
  	il logging di risposte errate mandate da alcune apparecchiature di rete.
 	Utile soltanto per evitare di riempire i vostri log. Fa riferimento
-	principalmente all'RFC1122 e alla funzione icmp_unreach chiamata da icmp_rcv.
+	principalmente all'RFC1122 e alla funzione icmp_unreach chiamata da icmp_rcv
+	in net/ipv4/icmp.c.
   <item><it/ip_forward/ -- questo file, invece, vi consente di abilitare
     	o disabilitare il ``forwarding''. Il forwarding consiste
 	nel consentire a linux di ``copiare'' i dati ricevuti da un'interfaccia
@@ -2031,7 +2182,7 @@ In quest directory, dovreste trovare alcuni file tra cui:
 		Il problema &egrave; che 
 		&egrave; stato dimostrato che in particolari condizioni con particolari
 		versioni del kernel linux era possibile indovinare questi syn e 
-		fare quello che viene chiamato spoofing. Sebbene attacchi di questo tipo
+		fare spoofing delle connessioni tcp. Sebbene attacchi di questo tipo
 		siano stati raramente (se mai) utilizzati (non mi riferisco allo spoofing 
 		in generale, pratica largamente utilizzata, ma all'indovinare i syn grazie
 		a questo bug nella creazione dei syn cookies), &egrave; bene abilitare i syn 
@@ -2042,7 +2193,7 @@ In quest directory, dovreste trovare alcuni file tra cui:
 		considerati da alcuni violare lo standard del tcp (ci sono state diverse discussioni 
 		in proposito, si veda per esempio il sito http://cr.yp.to/syncookies.html, di Dan Bernstein) e 
 		possono quindi introdurre dei problemi. I syn cookies, se abilitati,
-		verranno quindi utilizzati da linux soltanto nel caso in cui famosa coda si
+		verranno quindi utilizzati da linux soltanto nel caso in cui la famosa coda si
 		riempia.
 	</itemize>
 	Tornando a parlare dei file in /proc, tcp_max_syn_backlog consente di specificare
@@ -2068,8 +2219,8 @@ In quest directory, dovreste trovare alcuni file tra cui:
 	attack, ovvero un attacco che non ha bisogno di ricevere le risposte per poter essere
 	effettuato, per cui &egrave; estremamente semplice utilizzare dei ``mittenti'' 
 	falsificati nei pacchetti (ed utilizzare quindi ip multipli e differenti). L'ip che vedete in 
-	netstat o tcpdump potrebbe quindi essere quello di qualcuno che non c'entra assolutamente 
-	nulla con l'attacco. L'unica condizione perch&egrave; un ip possa essere utilizzato &egrave; infatti che
+	netstat o tcpdump potrebbe quindi essere quello di qualcuno che 
+	nulla ha a che vedere con l'attacco. L'unica condizione perch&egrave; un ip possa essere utilizzato &egrave; infatti che
 	questo risulti irraggiungibile dalla vostra macchina (altrimenti manderebbe un reset
 	dopo il vostro syn-ack). Infine, nel caso in cui il kernel si trovi a dover far uso
 	dei syn cookies, dovreste vedere dei messaggi nei file di log.
@@ -2125,577 +2276,17 @@ In quest directory, dovreste trovare alcuni file tra cui:
 </itemize>
 
 <sect>Filtrare il traffico con iptables<p>
-Una volta impostato correttamente il nostro kernel, possiamo passare alla fase
-successiva della configurazione del nostro firewall: impostare le regole di firewalling,
-ovvero, istruire il kernel su cosa far passare o cosa non far passare.<p>
-Per fare questo, bisogna utilizzare il comando iptables. Come gi&agrave;
-detto in precedenza, iptables non fa altro che comunicare al kernel le nostre
-volont&agrave;. Quando per&ograve; spegnamo il computer e lo riaccendiamo, il
-nostro kernel torna a vita nuova dimenticandosi tutto ci&ograve; che precedentemente
-gli era stato detto, comprese ci&ograve; che iptables gli avr&agrave; detto.<p> 
-Esistono diverse soluzioni a questo problema:
-<itemize>
-  <item>Pi&ugrave; o meno tutte le distribuzioni dove iptables &egrave; impacchettato
-  	mettono a disposizione dei sistemi pi&ugrave; o meno automatici di salvataggio
-	e ripristino delle regole. Di questi strumenti, verr&agrave; dato uno spunto
-	per utilizzare quelli messi a disposizione su Debian.
-  <item>E' sempre possibile scrivere un piccolo script che, ad ogni riavvio del 
-   	computer, esegua una serie di comandi ``iptables'' per riportare la situazione
-	a come l'avevamo lasciata. Personalmente, preferisco il pi&ugrave; delle volte
-	utilizzare questo approccio, principalmente perch&egrave; spesso &egrave; difficile
-	capire come gli ausili messi a disposizione dalle distribuzioni andranno ad interferire o
-	interagire con funzioni avanzate messe a disposizione del kernel di linux, come le regole 
-	di ``ip'' nelle tabelle di routing.
-</itemize>
-Nelle prossime sezioni, inizieremo quindi:
-<itemize>
-  <item><it/Iptables: catene, tabelle e regole/ - A vedere i concetti fondamentali su cui iptables si basa e 
-  	ad iniziare a ``muoverci'' imparando ad aggiungere, rimuovere ed inserire delle semplici regole. 
-  <item><it/Iptables: configurare un firewall/ - A vedere come mettere in pratica ci&ograve; che &egrave;
-  	stato detto su iptables, iniziando a scrivere delle regole un po' pi&ugrave; complesse e a mettere
-	insieme ci&ograve; che &egrave; stato detto.
-  <item><it/Iptbales: esempi concreti/ - Verranno commentati e spiegati alcuni esempi concreti nell'utilizzo
-  	di iptables.
-  <item><it/Iptables: come funziona/ - Verr&agrave; brevemente discusso come iptables faccia a ``parlare'' con
-  	il kernel e ad interagire con le varie extensions.
-</itemize>
-Durante il corso della trattazione, verranno inserite delle brevi sezioni che spiegheranno nel dettaglio
-come il codice di netfilter faccia a mettere in pratica ci&ograve; che gli viene detto di fare. Questo,
-se pu&ograve; sembrare di poco interesse al lettore occasionale che si trova a configurare un piccolo firewall,
-pu&ograve; essere fondamentale per colui che deve scrivere delle regole complesse in alcune condizioni limite 
-dove il comportamento del kernel non &egrave; facilmente prevedibile a priori. In pi&ugrave;, potrebbe servire
-come introduzione per coloro che si apprestano a scrivere del codice per iptables, delle target o delle
-match extensions.<p>
-
-<sect1>Iptables: catene, tabelle e regole...<p>
-<!-- Divisa in 3 parti:
-	prima - utilizzo generale di iptables
-	seconda - scrivere delle regole con iptables 
-	terza - esempi commentati 
--->
-Proviamo quindi per un attimo a metterci nei panni del nostro kernel linux. 
-Proviamo a fingere di essere qualche decina di migliaia di righe in C che si eseguono sul
-nostro velocissimo processore. Immaginiamo anche di sapere che l'unico mezzo che
-abbiamo per comunicare con il mondo esterno siano le nostre schede di rete, la nostra 
-tastiera ed il nostro monitor che alcune delle nostre routine stanno controllando.<p>
-Infine, immaginiamo di sapere che la persona che ci sta mandando impulsi elettrici
-picchiando i bottoni della nostra tastiera voglia configurarci come firewall, voglia
-istruirci cio&egrave; su cosa dovremmo fare o non fare passare attraverso le nostre
-schede di rete.<p>
-In linea di principio, questo nostro utente ci dovr&agrave; indicare delle regole, ovvero dei
-criteri generali che dovremmo utilizzare per decidere se bloccare o consentire una
-comunicazione. Queste regole, generalmente, saranno costituite da un ``criterio di confronto'' 
-(o match) e da un'azione da compiere (target, o obiettivo) nel caso in cui 
-il criterio risulti applicabile (se succede x, fai y - x: criterio di confronto - y: azione, generalmente
-``consenti la comunicazione'' o ``blocca la comunicazione'').<p>
-Il nostro utente poi, ci dovr&agrave; dire su quali comunicazioni queste regole
-dovranno essere applicate. Noi come kernel linux, infatti, siamo in grado di
-ricevere o inviare dati su ogni scheda di rete. Inoltre, siamo in grado di 
-mandare i dati da una scheda di rete all'altra, comportandoci esattamente come 
-un router.<p> 
-Di base, viene quindi introdotto il concetto di catena: ogni catena identifica 
-univocamente un flusso di dati e contiene un insieme di regole che su tale flusso 
-devono essere applicate. Alcune regole poi, sono in grado di suddividere ulteriormente
-il traffico dando origine a dei piccoli flussi indipendenti.<p>
-Di default, il kernel linux mette quindi a disposizione tre flussi (o tre catene):
-<itemize>
-  <item>la catena di <bf/input/ - pacchetti destinati al firewall stesso
-  <item>la catena di <bf/output/ - pacchetti generati dal firewall stesso
-  <item>la catena di <bf/forward/ - pacchetti in transito attraverso il firewall
-</itemize>
-Noi come kernel quindi, ogni volta che riceveremo in input un pacchetto destinato a
-noi come computer controlleremo tutte le regole indicate nella catena di <it/input/.
-Prima di soddisfare la richiesta di uno dei nostri utenti o di uno dei nostri
-demoni di inviare un pacchetto, controlleremo tutte le regole indicate nella
-catena di <it/output/. Infine, prima di decidere se far passare dei pacchetti
-da una interfaccia di rete ad un'altra, consulteremo tutte le regole indicate
-nella catena di <it/forward/. Il compito principale di un firewall &egrave; quindi quello
-di filtrare il traffico nella catena di forward, ovvero il traffico che tenta di transitare
-da una rete ad un'altra. Si pone per&ograve; Il problema di decidere che azione
-compiere nel caso in cui nessuna regola applicabile venga trovata... 
-Viene quindi introdotto il concetto di politica di una catena: per ogni catena,
-l'utente dovr&agrave; dirci cosa fare nel caso in cui non venga trovata alcuna 
-regola applicabile, dovr&agrave; cio&egrave; indicarci una azione (o target)
-di default da utilizzare.<p>
-
-<sect2>Target di base e algoritmo di matching<p>
-Innanzitutto, esistono alcuni target conosciuti a priori sia dal kernel
-che da iptables. In altri casi invece, i target saranno forniti da moduli
-esterni che dovranno essere caricati nel kernel (o automaticamente, o
-manualmente). In questo caso, si parler&agrave; di <it/target extensions/.
-I target messi a disposizione direttamente dal kernel e pi&ugrave; comunemente 
-utilizzati sono comunque
-<itemize>
-  <item>ACCEPT
-  <item>DROP
-</itemize>
-Il cui significato credo che sia abbastanza ovvio:
-<itemize>
-  <item>ACCEPT accetta il pacchetto
-  <item>DROP butta via il pacchetto 
-</itemize>
-Quando il kernel riceve un pacchetto, quindi, per prima cosa  tenta
-di capire se il pacchetto &egrave; destinato a lui o se deve essere
-rinviato su di un'altra rete, se cio&egrave; il pacchetto deve soltanto transitare
-attraverso il firewall. Nel primo caso il kernel prender&agrave; le 
-regole indicate nella catena di input, mentre nel secondo considerer&agrave;
-quelle indicate nella catena di forward. Trovate le regole, inizier&agrave; quindi
-a controllarle una dopo l'altra fino a trovarne una che possa
-essere applicata al pacchetto, per cui cio&egrave; tutti i criteri risultino
-soddisfatti, nel qual caso il target o obiettivo indicato verr&agrave; eseguito. 
-Nel caso in cui non venga trovata
-una regola utilizzabile, verr&agrave; eseguita l'azione indicata dalla
-politica della catena.
-
-<sect3>Dettagli sul codice di netfilter e sulla scelta delle catene<p>
-Per i lettori pi&ugrave; smaliziati, la scelta delle catene da controllare
-ed il controllo vero e proprio viene effettuato dal codice di netfilter del kernel 
-tramite un meccanismo di ``hook'' (uncini). In pratica, in giro per il codice di 
-networking di linux, viene ogni tanto chiamata
-la funzione NF_HOOK (in realt&agrave; una macro) che, nel caso in cui il codice di
-firewalling sia disabilitato, si limita a chiamare una funzione dallo scopo ben definito,
-mentre con il codice di firewalling abilitato chiama una lista di funzioni
-che effettuano il lavoro sporco del codice di firewalling e di NAT.<p>
-Prendiamo per esempio l'hook chiamato da ``ip_forward.c'' con NF_HOOK(PF_INET, NF_IP_FORWARD,
-skb, skb->dev, dev2, ip_forward_finish). In questo caso, quando la funzione ip_forward
-viene chiamata (e viene chiamata per ogni pacchetto che net/ipv4/route.c:ip_route_input_slow()
-determina dover essere rinviato in forward), se il codice di firewalling &egrave; disabilitato 
-(CONFIG_NETFILTER undefined, linux/netfilter.h) viene chiamata direttamente la funzione
-ip_forward_finish, che non fa altro che sistemare le opzioni del pacchetto (se vi sono)
-ed inviarlo al destinatario. Al contrario, se il codice di firewalling &egrave; abilitato 
-(ed i moduli di iptables caricati - ip_tables.o ed iptable_filter.o), NF_HOOK si traduce
-in una chiamata a net/core/netfilter.c:nf_hook_slow() che a sua volta chiama
-net/core/netfilter.c:nf_iterate() che si occupa di eseguire tutte le funzioni che si sono
-dichiarate interessate all'hook (chiamando net/core/netfilter.c:nf_register_hook()). 
-In particolare, in net/ipv4/netfilter/iptable_filter.c:init(),
-viene indicata come interessata all'hook NF_IP_FORWARD della famiglia PF_INET la funzione
-net/ipv4/netfilter/iptable_filter.c:ipt_hook(), che, guardacaso, si occupa di consultare
-tutte le regole della catena di ``forward'' nella tabella ``filter''.<p>
-Per concludere, quindi: se verr&agrave; utilizzata la catena di input, di forward o di output
-viene determinato esclusivamente dal kernel, che decider&agrave; in base al MAC address del 
-destinatario, al suo indirizzo ip ed alle tabelle di routing impostate. Nel momento in cui il 
-kernel decider&agrave; di mandare il pacchetto in forward, dovr&agrave; chiamare la funzione 
-adibita a tale scopo passando per NF_HOOK, parte del codice del netfilter, che far&agrave; in 
-modo che il pacchetto venga fatto passare per la catena forward di iptables. <p>
-Generalmente, comunque, un pacchetto che ha come MAC address di destinazione l'indirizzo
-della vostra scheda di rete e come indirizzo ip di destinazione l'indirizzo di una rete da voi
-conosciuta, questo passer&agrave; dalla catena di forward, a meno che l'indirizzo di destinazione
-non sia quello di una delle vostre interfaccie (e che il forwarding sia disabilitato :).<p>
-
-<sect2>Definizione delle politiche di default<p>
-Finora comunque, si &egrave; soltanto parlato di come funziona e di
-come &egrave; strutturato iptables. Vediamo quindi di mettere in pratica
-alcune delle cose che abbiamo visto, definendo le politiche di default
-per le tre catene principali. Per fare questo, da riga di comando, &egrave;
-sufficiente eseguire i comandi:
-<tscreen><verb>
-# iptables -P INPUT DROP
-# iptables -P OUTPUT DROP
-# iptables -P FORWARD DROP
-</verb></tscreen>
-Come gi&agrave; indicato prima, iptables si occuper&agrave; quindi di istruire
-il kernel secondo i parametri che gli indicheremo da riga di comando. In questo
-caso, stiamo dicendo ad iptables:
-<itemize>
-  <item>iptables, d&igrave; al kernel che come poltica (-P) per la catena
-  	di INPUT deve essere utilizzato il target DROP, cio&egrave; deve buttare via 
-	ogni pacchetto ricevuto.
-  <item>...
-</itemize>
-Di base, comunque, &egrave; possibile utilizzare due approcci diversi nello scrivere
-delle regole:
-<itemize>
-  <item>utilizzare delle politiche di ACCEPT e vietare esplicitamente ci&ograve;
-   	che non pu&ograve; e che non deve passare attraverso il firewall.
-  <item>utilizzare delle politiche di DROP e consentire esplicitamente ci&ograve; che
-  	invece pu&ograve; e dovrebbe poter passare attraverso il firewall.
-</itemize>
-Sebbene sottilmente, le due politiche cambiano radicalmente il modo in cui ci 
-troveremo a scrivere le regole:
-<itemize>
-  <item>Nel primo caso, le nostre regole dovranno indicare quale traffico bloccare (politica di ACCEPT)
-  <item>Nel secondo caso, le nostre regole dovranno indicare quale traffico consentire (politica di DROP)
-</itemize>
-Attualmente, il secondo approccio viene considerato il migliore, principalmente per
-i seguenti motivi:
-<itemize>
-  <item>E' pi&ugrave; facile rendersi conto di aver dimenticato qualcosa chiuso piuttosto
-  	che rendersi conto di aver dimenticato qualcosa aperto (chiedetelo ai vostri utenti :).
-  <item>E' molto difficile scrivere un elenco esaustivo di quello che potrebbe passare per
-  	una rete e che non vorremmo fare passare.<p>
-	Per fare un esempio stupido, mandando la vostra nipotina al supermercato, per il
-	terrore che questa comperi cose inutili le potreste dare una lista con delle
-	regole che determinino cosa pu&ograve; o non pu&ograve; comprare. Utilizzando una
-	politica di ACCEPT, dovreste <it/elencare esplicitamente tutti/ i prodotti che non 
-	volete che comperi (ed in un supermercato, come in una rete, ci possono essere <bf/molti/
-	prodotti di cui magari non conoscete nemmeno l'esistenza). Utilizzando una politica di 
-	DROP, invece, vi basterebbe indicare quali prodotti pu&ograve; comperare.<p>
-	Generalmente quindi, l'utilizzo di una politica di DROP in ambiti di sicurezza
-	oltre a dare dei risultati migliori &egrave; pi&ugrave; semplice da utilizzare.
-	Ci sono comunque dei casi dove &egrave; pi&ugrave; conveniente utilizzare una poltica
-	di ACCEPT, casi che verranno discussi in seguito.
-</itemize>
-
-<sect2>Prime regole<p>
-Ora che abbiamo visto come definire le politiche di default delle catene, vediamo come
-aggiungere delle regole. Ancora una volta, per fare questo si dovr&agrave; utilizzare
-il comando iptables, come nei seguenti esempi: 
-<tscreen><verb>
-# iptables -A INPUT -s 192.168.1.2 -d 192.168.3.4 -i eth0 -j DROP
-# iptables -A FORWARD -i eth0 -o eth1 -j DROP
-</verb></tscreen>
-In questi casi, il primo parametro di iptables (-A) indica cosa deve essere
-fatto, indica cio&egrave; ad iptables che deve essere <bf/Aggiunta/ una nuova 
-regola nella catena indicata, rispettivamente INPUT e FORWARD. Dopo questo
-primo parametro, viene indicato su cosa la regola debba essere applicata,
-vengono cio&egrave; indicati quelli che abbiamo definito ``criteri di confronto''.
-Nei casi sopra esposti:
-<itemize>
-  <item><it/-s/ indica di controllare l'indirizzo ip del mittente del pacchetto. Pu&ograve;
-  	essere un indirizzo ipv4 valido, il nome di un host o l'indicazione di una 
-	rete nel formato indirizzo/bit_significativi_della_netmask. Per esempio,
-	si potrebbe specificare:
-	<itemize>
-	  <item> <it/-s 192.168.0.1/ indica che il mittente deve essere 192.168.0.1
-	  <item> <it>-s 192.168.0.1/24</it> indica che il mittente pu&ograve; essere
-	  	ogni computer della rete 192.168.0.0/255.255.255.0 (255.255.255.0 scritto
-		in binario contiene 24 bit a 1 - per maggiori dettagli, date un'occhiata a 
-		<!-- %FIXME% -->	www.commedia.it/ccontavalli/docs-it/ip4fun.html)
-	  <item> <it>-s www.libero.it</it> indica che il mittente deve essere l'indirizzo
-	  	ip corrispondente a www.libero.it. In questo caso &egrave; di fondamentale
-		importanza notare che www.libero.it viene immediatamente convertito in un
-		indirizzo ip e passato al kernel come tale. Per cui, attenzione che: 
-		<enum>
-		  <item>il dns non &egrave; sicuro 
-		  <item>le impostazioni potrebbero cambiare in ogni momento senza che 
-		  	iptables possa venirne a conoscenza (il nome viene risolto nel momento
-			in cui viene impostata la regola - fortunatamente non viene fatto alcun 
-			reverse lookup sugli indirizzi nei pacchetti).
-		</enum>
-	</itemize>
-  <item><it/-d/ verifica l'indirizzo ip del destinatario del pacchetto. Pu&ograve; essere
-  	indicato in ognuno dei formati riconosciuti da <it/-s/.
-  <item><it/-i/ verifica che il pacchetto sia entrato dalla scheda di rete specificata.
-  <item><it/-o/ verifica che il pacchetto uscir&agrave; dalla scheda di rete indicata.
-</itemize>
-Per quanto riguarda <it/-i/ e <it/-o/, &egrave; importante notare che non sempre possono
-essere utilizzati. Per esempio <it/-i/ non pu&ograve; essere utilizzato nella catena di
-output e <it/-o/ non pu&ograve; essere utilizzato nella catena di input. Se ci pensate
-due minuti, la ragione apparir&agrave; ovvia anche a voi: nella catena di input, il pacchetto
-verr&agrave; ricevuto da un programma e non dovr&agrave; quindi pi&ugrave; uscire da alcuna
-interfaccia. Al contrario, pacchetti nella catena di output sono stati generati da un programma
-o da un utente stesso del firewall, e non sono quindi entrati da alcuna interfaccia.<p>
-L'importante &egrave; quindi notare che alcuni match hanno senso solo in alcuni contesti
-e solo per determinati protocolli. In pi&ugrave;, come nel caso delle azioni, esistono
-dei moduli esterni in grado di mettere a disposizione delle ``match extensions'', ovvero
-dei criteri di confronto addizionali.<p>
-Nel corso di questo documento verranno discussi diversi di questi match, anche se non
-verr&agrave; dato un elenco esaustivo degli stessi. Per maggiori dettagli, potete consultare 
-l'allegato 1 <!-- FIXME --> od il manuale di iptables.<p>
-
-<sect2>Operazioni di base sulle regole<p>
-Adesso che abbiamo visto pi&ugrave; o meno che forma ha una regola, vediamo cosa
-&egrave; possibile fare di queste regole. Utilizzando iptables, infatti, non siamo
-limitati alla sola ``aggiunt'', utilizzando alcuni altri parametri, &egrave; infatti
-possibile:
-<itemize>
-  <item><it/-F/ -- eliminare tutte le regole di una catena 
-  <item><it/-I/ -- inserire una nuova regola in una determinata posizione 
-  		   di una catena
-  <item><it/-R/ -- sostituire una regola con un'altra
-  <item><it/-D/ -- rimuovere una regola
-  <item><it/-L/ -- avere un elenco delle regole impostate. Si utilizza spesso 
-  		   in combinazione con <it/-n/, per evitare che gli indirizzi ip
-		   vengano traformati in nomi di host (come in <it/-nL/). Attenzione
-		   per&ograve; che la ``n'' deve essere specificata esplicitamente 
-		   prima della L, altrimenti verr&agrave; interpretata come il nome
-		   della catena da mostrare a video.
-</itemize>
-Per esempio, utilizzando il comando ``iptables -nL'' sul mio computer, otterrei
-un output simile al seguente:
-<tscreen><verb>
-Chain INPUT (policy DROP)
-target     prot opt source               destination
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
-ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:22
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0          state RELATED,ESTABLISHED
-REJECT     tcp  --  0.0.0.0/0            0.0.0.0/0          reject-with tcp-reset
-
-Chain FORWARD (policy DROP)
-target     prot opt source               destination
-
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination
-</verb></tscreen>
-I dettagli di quest'output verranno discussi pi&ugrave; avanti. Per ora, vi basti
-notare che vengono elencate le tre catene di default con la relativa politica (policy),
-che nella catena di FORWARD e nella catena di OUTPUT non &egrave; impostata alcuna regola,
-mentre nella catena di INPUT le prime 3 regole hanno come azione (target) ACCEPT.<p>
-Se volessi rimuovere la terza regola nella catena di INPUT, potrei quindi utilizzare il comando:  
-<tscreen><verb>
-# iptables -D INPUT 3
-</verb></tscreen>
-mentre per eliminare tutte le regole di una catena potrei utilizzare il comando 
-<tscreen><verb>
-# iptables -F INPUT 
-</verb></tscreen>
-Allo stesso modo, per inserire la prima regola mostrata in terza posizione anzich&eacute; alla
-fine della catena, potrei utilizzare il comando
-<tscreen><verb>
-# iptables -I INPUT 3 -s 192.168.1.2 -d 192.168.3.4 -i eth0 -j DROP
-</verb></tscreen>
-Le operazioni rimaste verranno discusse nel resto della trattazione, quando avremo una maggiore
-padronanza nello scrivere e nel padroneggiare le regole.
-
-<sect2>Creare nuove catene<p>
-Nei pochi esempi visti in precedenza, &egrave; sempre stato utilizzato un target come DROP o
-ACCEPT. Oltre questi target ed alle ``target extensions'' di cui si &egrave; accennato in
-precedenza, &egrave; possibile utilizzare come target il nome di una nuova catena.<p>
-In pratica, iptables ci consente di inventare delle nuove catene e di scrivere delle regole
-che indichino ad iptables quando utilizzare tali catene.<p>
-Per fare un breve esempio, immaginiamo di aver installato un firewall per proteggere la nostra 
-sala server. Per filtrare il traffico, dovremmo inserire delle regole nella catena di FORWARD.
-Se per&ograve; il nostro firewall proteggesse anche la nostra 
-rete interna, in questa stessa catena dovremmo inserire le regole per proteggere anche la rete interna,
-il che potrebbe portare diversi svantaggi.<p>
-In questo caso potremmo quindi creare due diverse catene: una per il traffico destinato alla
-sala server, che chiameremo ``outserver'', ed una per il traffico destinato alla rete interna,
-che chiameremo ``outlan''. I nomi possono essere scelti pi&ugrave; o meno liberamente... l'importante
-&egrave; che per voi e che per coloro che andranno a mettere le mani sulla configurazione del
-firewall abbiano un significato chiaro.<p>
-Come prima cosa, comunque, dovremo creare le nuove catene con il comando:
-<tscreen><verb>
-# iptables -N outserver
-# iptables -N outlan
-</verb></tscreen>
-A questo punto dovremo dire al kernel quando utilizzare queste catene. Per fare questo, ci basta inserire
-in una delle catene predefinite una regola che indichi come obiettivo le regole appena create.<p>
-Per esempio, potremmo:
-<tscreen><verb>
-# iptables -A FORWARD -d 192.168.0.0/16 -j outlan
-# iptables -A FORWARD -d 123.4.5.0/24 -j outserver
-</verb></tscreen>
-Dove 192.168.0.0/255.255.0.0 &egrave; l'indirizzo della rete interna mentre
-123.4.5.0/255.255.255.0 &egrave; l'indirizzo della rete dei server (in questi casi, potrebbe
-non essere una buona idea utilizzare l'indirizzo ip, verranno dati maggiori
-dettagli in seguito). Con queste due regole, abbiamo indicato ad iptables di 
-controllare tutte le regole della catena outlan qualora l'indirizzo ip di destinazione di un pacchetto
-inizi con 192.168 mentre di utilizzare la catena outserver nel caso in cui
-il destinatario inizi con 123.4.5. In questo modo avremo diviso il traffico transitante
-per la catena di forward in due flussi, un flusso chiamato outlan con il traffico
-proveniente da internet e destinato alla rete interna, ed uno chiamato outserver dal
-quale passer&agrave; il traffico proveniente da internet e destinato ai server.<p>
-In questo caso, &egrave; importante notare che quando dico che il ``traffico transiter&agrave; da
-una catena'', intendo dire che il traffico verr&agrave; accettato o negato secondo quanto
-indicato nelle regole contenute in tale catena. E' per&ograve; comodo immaginare che il traffico,
-una volta entrato nella scheda di rete, transiti per le nostre catene fino a trovare un'uscita.<p>
-Proseguendo nel breve esempio, dopo aver creato le nuove catene, per aggiungere delle regole che 
-filtrino il traffico in transito destinato ai server potremo inserire delle nuove regole nella
-catena ``outserver'', con dei comandi simili a:
-<tscreen><verb>
-# iptables -A outserver -p tcp -d 123.4.5.2 --dport 25 -j ACCEPT
-</verb></tscreen>
-che, tradotto in italiano, vorrebbe dire qualcosa come: ``accetta ogni
-pacchetto destinato al server 123.4.5.2 che utilizzi il protocollo tcp
-e che sia destinato alla porta 25 che transiti dalla catena outserver''.<p>
-A parte l'utilizzo di una catena creata ex-novo, in questo esempio possiamo
-vedere anche l'utilizzo di alcuni nuovi criteri di confronto. In particolare,
-abbiamo utilizzato ``-p'', che ci consente di specificare il protocollo utilizzato
-dal pacchetto perch&egrave; la regola risulti applicabile, e ``--dport'', che
-ci consente invece di specificare la porta di destinazione che il pacchetto
-dovr&agrave; avere.<p>
-A questo punto, per&ograve;, &egrave; importante notare un'ultima cosa sulle
-catene che abbiamo creato. Con iptables, solo le catene di default hanno una
-``politica'' di default associata.<p>
-Quando una catena creata a mano viene quindi percorsa per intero senza trovare
-alcuna regola applicabile, il kernel, non sapendo cosa fare, continuer&agrave;
-riprendendo il controllo dalla regola successiva a quella che gli aveva detto
-di controllare tale catena.<p>
-In pratica, nel breve esempio di prima, se il kernel ricevesse un pacchetto da 
-internet destinato ad un server della nostra rete, ma non ci fosse alcuna regola 
-nella catena ``outserver'' che dica esplicitamente cosa fare di quel pacchetto,
-il kernel continuerebbe a controllare tutte le regole successiva a quella con
-``-j outserver'', fino o a trovare un match o ad applicare la politica di default
-di una delle catene di default.<p>
-Oltre ai target ACCEPT e DROP incontrati finora, &egrave; anche possibile utilizzare
-il target ``RETURN''. Questo target fa s&igrave; che venga immediatamente interrotto
-il controllo della catena corrente, come se non fosse stata trovata nessuna regola
-applicabile. Ancora, se nella catena ``outserver'' risultasse applicabile una
-regola con target ``RETURN'', il kernel interromperebbe il controllo della catena
-``outserver'' per riprendere dalla regola successiva a quella con indicato
-``-j outserver''.<p>
-Naturalmente &egrave; anche possibile eliminare le catene, utilizzando il comando
-``iptables -X nomecatena'' dopo per&ograve; averle svuotate.
-
-<sect1>Iptables: configurare un firewall<p>
-Bene, abbiamo ora visto come si possono scrivere catene e come vi si possono 
-aggiungere o togliere delle regole. Rimane ora la parte pi&ugrave; difficile della
-configurazione di un firewall: scrivere le regole.<p>
-Esistono diverse correnti di pensiero su come scrivere delle regole efficienti
-o su come configurare un firewall. In questa sezione, verranno spiegati e suggeriti
-alcuni accorgimenti che nella mia esperienza e nell'esperienza di molte tra
-le persone con cui ho lavorato si sono dimostrati utili, funzionali e affidabili.
-
-
-<sect2>Perch&egrave; usare le catene<p>
-Ci sono diversi motivi validi per creare ed utilizzare le catene:
-<itemize>
-  <item>Prima di tutto, un utilizzo corretto delle catene pu&ograve; portare 
-  	all'utilizzo di formalismi che aumentano la chiarezza delle vostre 
-	regole in maniera non indifferente, facilitando notevolmente 
-	il compito di trovare errori nella configurazione.<p>
-	Nell'esempio mostrato poi, dividendo le regole per flussi e
-	facendo delle piccole modifiche a delle singole catene, andremmo
-	ad intaccare soltanto il traffico facente parte di un determinato 
-	flusso. Se non usassimo questo accorgimento, un piccolo errore
-	potrebbe compromettere il funzionamento dell'intera rete. E se l'uptime
-	&egrave; una vostra preoccupazione, probabilmente o farete poche modifiche
-	alla configurazione del firewall o vi conviene adottare delle tecniche per
-	ridurre la probabilit&agrave; che si verifichino errori.
-  <item>In secondo luogo, guardando la funzione net/ipv4/netfilter/ip_tables.c:ip_do_table, 
-  	ogni volta che un pacchetto viene ricevuto o inviato, il kernel deve prendere
-	l'elenco delle regole applicabili e provarle una ad una fino a trovare
-	una regola applicabile. Avendo un totale di 40 regole, dividendole in 4 catene, 
-	avremmo che nella peggiore delle ipotesi 14 regole verrebbero controllate.<p>
-	Al contrario, senza usare le catene, tutte e 40 le regole
-	dovrebbero essere verificate. Avendo tante regole, pu&ograve;
-	essere una buona cosa dividere razionalmente in catene, 
-	anche per velocizzare il processo di ricerca. 
-  <item>In terzo luogo, utilizzando le catene sarebbe possibile creare 
- 	delle ``funzioni'', un po' come in un linguaggio di programmazione,
-	utilizzando il target ``RETURN''. Ad esempio, si potrebbe
-	creare una ``MACRO'' ``drop_web'' per bloccare il traffico web,
-	con qualcosa come:
-<tscreen><verb>
-iptables -N drop_web
-iptables -A drop_web -p tcp &min;&min;dport 80 -j DROP
-iptables -A drop_web -p tcp &min;&min;dport 445 -j DROP
-iptables -A drop_web -j RETURN
-</verb></tscreen>
-	utilizzandola poi con qualcosa come:
-<tscreen><verb>
-iptables -I INPUT -j drop_web
-iptables -I INPUT -j allow_ftp
-[...]
-</verb></tscreen>
-	ovviamente, iptables ed il meccanismo delle catene non sono stati
-	concepiti per questo, ed utilizzarli in questo modo non credo porti 
-	a particolari benefici, oltre alla leggibilit&agrave;, ad una maggior
-	user friendness e ad una maggiore lentezza.
-</itemize>
-Comunque, i primi due motivi sono pi&ugrave; che sufficienti per 
-giustificare l'utilizzo delle catene. 
-
-<sect1>Iptables: esempi concreti<p>
-
-<sect1>Iptables: come funziona<p>
-Nelle scorse sezioni, poco per volta, &egrave; stato spiegato come funziona il kernel,
-ovvero come il kernel faccia ad utilizzare le informazioni che gli vengono date e a 
-mettere in pratica le nostre richieste. Non &egrave; per&ograve; mai stato detto
-come o cosa faccia iptables per interfacciarsi con il kernel. Probabilmente, se state
-configurando il firewall della vostra azienda, se il comportamento del kernel poteva
-essere di un qualche interesse per prevedere il comportamento in determinati casi limite,
-sapere come funziona iptables pu&ograve; servirvi solo a soddisfare qualche curiosit&agrave;.
-Se invece vi divertite ogni tanto a programmare in C o con qualche script insolito, pu&ograve;
-darsi che vi sia qualcosa di vostro interesse.<p>
-
-<sect2>Idea di base<p>
-Come gi&agrave; indicato in precedenza, iptables non fa altro che istruire il kernel
-su ci&ograve; che deve o che non deve fare. Il problema rimane sul come far comunicare
-un comando in userspace con dei moduli in kernel space. In questo caso, la soluzione
-adottata &egrave; stata quella di utilizzare il comando ``setsockopt'' e ``getsockopt''.
-Guardando il codice in iptables di libiptc/libiptc.c:TC_INIT, infatti, si pu&ograve;
-vedere che viene aperta una raw socket di famiglia PF_INET e protocol IPPROTO_RAW, questo
-probabilmente perch&egrave; la creazione di raw socket &egrave; riservata a ``root''.<p>
-Una volta creata la socket, vengono utilizzate le funzioni standard ``setsockopt'' e 
-``getsockopt'' per prendere ed impostare i valori utilizzati dal codice lato kernel
-di iptables.<p>
-Di base, le operazioni che si possono fare tramite getsockopt e setsockopt sono 
-poche e semplici:
-<itemize>
-  <item>IPT_SO_GET_INFO - struct ipt_getinfo (include/linux/netfilter_ipv4/ip_tables.h) - 
-  	utilizzato per prendere le informazioni di base su iptables (principalmente, il nome
-	della tabella, gli hook utilizzabili, gli entry point per gli hook, il numero di entry
-	e la dimensione della tabella, questi ultimi utilizzati per allocare la memoria a 
-	priori).
-  <item>IPT_SO_GET_ENTRIES - struct ipt_get_entries (include/linux/netfilter_ipv4/ip_tables.h) -
-  	utilizzato per prendere tutti i contatori e l'elenco completo delle regole.
-  <item>IPT_SO_SET_REPLACE - per sostituire le informazioni su di una tabella.
-  <item>IPT_SO_SET_ADD_COUNTERS - per gestire i nuovi valori dei contatori.
-</itemize>
-Per cui se diamo un'occhiata sempre alla funzione libiptc/libiptc.c:TC_INIT possiamo
-vedere che come prima cosa il codice di iptables apre una raw socket e richiede
-GET_INFO. In base alle informazioni restituite, viene allocata un'area abbastanza
-grossa per contenere le regole della tabella, che vengono quindi recuperate con
-GET_ENTRIES. Una volta effettuate le dovute modifiche su questa struttura, viene
-chiamata sempre setsokopt prima con SET_REPLACE  (per inserire le nuove regole) e
-poi con SET_ADD_COUNTERS per impostare i contatori. Questo principalmente perch&egrave;
-il valore dei contatori cambia in continuazione (tra la GET_ENTRIES e la SET_REPLACE in
-particolare) e deve essere messo a disposizione un metodo per poter incrementare o 
-modificare i contatori in maniera che i numeri continuino ad avere un senso.<p>
-
-<sect2>Formato delle regole<p>
-Riassumendo quindi, abbiamo detto che dopo avere aperto una raw socket vengono principalmente
-utilizzate quattro sockopt diverse per richiedere o impostare le informazioni di iptables.<p>
-Normalmente il tutto ha inizio con la famosa GET_INFO che memorizza i dati in una struttura
-ipt_getinfo.<p>
-In base a questi dati viene quindi allocata una area di memoria di dimensione idonea per
-contenere le regole e vengono prese con la famosa GET_ENTRIES.<p>
-
-
-
-
-
-
-<!--
-Prima di specificare una regola, per&ograve;, ci dovrebbe dire su
-che pacchetti questa regola deve essere applicata. Per esempio, deve essere applicata
-sui pacchetti che vorrebbero andare da una scheda di rete ad un'altra, o sui pacchetti
-che noi stessi come computer stiamo generando? O sui pacchetti che altri computer
-stanno inviando a noi direttamente (non dimenticatevi che un firewall, come un qualsiasi
-altro computer connesso ad una rete, ricever&agrave; ed invier&agrave; dei pacchetti)?<p>
-
-<itemize>
-
-Come firewall, noi nelle vesti del kernel avremo la responsabilit&agrave; di decidere
-quali pacchetti far passare da una scheda di rete ad un altra.
-
-
-
-Prima di parlare di tabelle però, ci conviene chiarire il
-concetto di catena. L'idea di base è abbastanza semplice: un computer collegato 
-in rete con una o più interfacce ha a che vedere con tre tipi di pacchetti:
-<itemize>
-  <item>Pacchetti destinati al firewall stesso
-  <item>Pacchetti che devono transitare dal firewall ma destinati a qualcun'altro
-  <item>Pacchetti originati dal firewall stesso
-</itemize>
-Di default ipchains ed iptables mettono quindi a disposizioni rispettivamente 3 catene:
-<itemize>
-  <item>La catena di input
-  <item>La catena di forward
-  <item>La catena di output
-</itemize>
-In un computer normale (o in un server) verrebbero principalmente utilizzate
-le catene di input e di output per filtrare il traffico ricevuto e generato
-dalla macchina presa in considerazione.<p>
-In un firewall invece, i pacchetti transiterebbero da una scheda di rete 
-all&apos;altra, passando quindi attraverso la catena di forward.<p>
-Ogni catena è poi costituita da un insieme di regole. Ad ogni regola, è 
-associata un&apos;azione (target). Ogni volta che un pacchetto transita per una catena, 
-tutte le regole vengono controllate in ordine, dalla prima inserita fino all&apos;ultima. 
-Quando una regola risulta applicabile al pacchetto (viene trovato un match) viene applicata 
-al pacchetto l&apos;azione specificata e viene interrotto il processo di ricerca. <p>
-Se non viene trovata una regola applicabile al pacchetto, la sua sorte (l'azione 
-d'applicare) viene scelta in base alla politica (policy) della catena stessa. In pratica,
-la policy indica cosa fare di tutti i pacchetti che non rientrano in nessuna regola.<p>
-Sia ipchains che iptables poi, consentono di creare o rimuovere catene e di specificare
-come azione quella di percorrere un'altra catena.
-<p>Detto così può sembrare tutto molto complesso, ma vedrete che poi nella pratica diventerà 
-molto più semplice.<p>
-
-
-
+Di base, tutte le distribuzioni mettono a disposizione dei tool per configurare
+la rete. Se avete molta fiducia nella vostra distribuzione o gli script sono 
+particolarmente ben fatti, potete tranquillamente usare quelli... per quanto mi
+riguarda, pur avendo molta fiducia negli script forniti con debian,
+preferisco escludere completamente il supporto della distribuzione 
+in maniera da non avere limiti e da poter usare con tranquillità le patch
+sopra installate ed in modo da evitare interazioni non volute con script o programmi
+di cui spesso non si ha il pieno controllo. Nelle prossime sezioni configureremo
+un firewall ``from scratch'', aggiungendo cioè i nostri script in /etc/init.d
+in modo che vengano caricati automaticamente all'accensione della vostra
+macchina. 
 
 <sect1>Preambolo<p>
 Ok, il nostro primo script si chiamerà conffw. Ovviamente non dovrete scrivere i 
@@ -2759,7 +2350,7 @@ inizino a fluire prima che le regole di firewalling siano state aggiunte.
 
 <sect1>Il comando iptables <p>
 Sicuramente se avete sentito parlare di linux e di firewalling,
-avete sentito parlare anche di ipchains e di ipfwadm. Questi comandi
+ avete anche sentito parlare di ipchains e di ipfwadm. Questi comandi
  consentivano l'impostazione delle regole di firewalling rispettivamente
  nei kernel 2.2 e 2.0. Nei kernel dal 2.4 in poi è stato introdotto un nuovo 
  comando: iptables, anche se il supporto sia per ipchains che ipfwadm è rimasto.<p>
@@ -2798,7 +2389,6 @@ Sia ipchains che iptables poi, consentono di creare o rimuovere catene e di spec
 come azione quella di percorrere un'altra catena.
 <p>Detto così può sembrare tutto molto complesso, ma vedrete che poi nella pratica diventerà 
 molto più semplice.<p>
--->
 
 <sect1>Definizione delle policy<p>
 Iniziamo quindi a parlare di iptables, ed iniziamo proprio definendo la ``politica'' di default
@@ -2967,6 +2557,61 @@ ip fasulli (ancora, cosa succederebbe se basassimo le nostre regole solo sugli i
 e qualcuno ci mandasse dei pacchetti provenienti da 127.0.0.1 con l'rp_filter disabilitato?).<p>
 
 <!--
+<sect2>Perch&egrave; usare le catene<p>
+Ci sono diversi motivi validi per creare ed utilizzare le catene:
+<itemize>
+  <item>Prima di tutto pu&ograve; portare ad un formalismo 
+  	che pu&ograve; aumentare la chiarezza delle vostre regole in maniera
+	non indifferente, facilitando il compito di trovare errori
+	di configurazione.<p>
+	Nell'esempio mostrato poi, dividendo le regole per flussi e
+	facendo delle piccole modifiche a delle singole catene, andremmo
+	ad intaccare soltanto il traffico facente parte del determinato 
+	flusso. Se non usassimo questo accorgimento, un piccolo errore
+	potrebbe compromettere il funzionamento dell'intera rete.
+  <item>In secondo luogo, una lista di regole deve essere consultata
+  	dal netfilter fino a trovare una corrispondenza. Dividendo in catene, la
+	ricerca si ferma alla fine della catena utilizzata. Avendo
+	un totale di 40 regole, dividendole in 4 catene avremmo che
+	nella peggiore delle ipotesi 10 (14, se ipotizziamo che debbano 
+	essere percorse 4 regole prima di trovare la catena corretta da 
+	utilizzare) regole verrebbero controllate
+	(l'algoritmo di verifica delle regole lo potete vedere in 
+	<file>linux/net/ipv4/netfilter/ip_tables.c</file>
+	nella funzione ip_packet_match e ipt_do_table, riga 315 nel kernel
+	2.4.18).<p>
+	Al contrario, senza usare le catene, tutte e 40 le regole
+	dovrebbero essere verificate. Avendo tante regole, pu&ograve;
+	essere una buona cosa dividere razionalmente in catene, 
+	anche per velocizzare il processo di ricerca. 
+  <item>In terzo luogo, utilizzando le catene sarebbe possibile creare 
+ 	delle ``funzioni'', un po' come in un linguaggio di programmazione,
+	utilizzando il target ``RETURN''. Ad esempio, si potrebbe
+	creare una ``MACRO'' ``drop_web'' per bloccare il traffico web,
+	con qualcosa come:
+<tscreen><verb>
+iptables -N drop_web
+iptables -A drop_web -p tcp &min;&min;dport 80 -j DROP
+iptables -A drop_web -p tcp &min;&min;dport 445 -j DROP
+iptables -A drop_web -j RETURN
+</verb></tscreen>
+	utilizzandola poi con qualcosa come:
+<tscreen><verb>
+iptables -I INPUT -j drop_web
+iptables -I INPUT -j allow_ftp
+[...]
+</verb></tscreen>
+	ovviamente, iptables ed il meccanismo delle catene non sono stati
+	fatti per questo, ed utilizzarli in questo modo non credo porti 
+	a particolari benefici, oltre alla leggibilit&agrave; e ad una maggior
+	user friendness. Se poi si tiene in considerazione il fatto che
+	ogni ``MACRO'' aggiunge due regole che devono essere controllate...
+	conviene cercare di usare questi metodi saggiamente.
+</itemize>
+Comunque, i primi due motivi sono pi&ugrave; che sufficienti per 
+giustificare l'utilizzo delle catene. Non dite poi che non vi
+avevo avvertito.
+-->
 
 <sect2>Dalla LAN alla DMZ<p>
 Ricordandoci della configurazione della nostra ipotetica rete, abbiamo deciso
@@ -3268,7 +2913,7 @@ Che si traduce linearmente in qualcosa del tipo:
 58: iptables -A inetdmz -p tcp -d nostro.dns --dport domain -j ACCEPT
 59: iptables -A inetdmz -p udp -d nostro.dns --dport domain -j ACCEPT
 60: iptables -A inetdmz -p tcp -d nostro.ftpserver --dport ftp -j ACCEPT 
-61: iptables -A inetdmz -m state ESTABLISHED,RELATED
+61: iptables -A inetdmz -m state --state ESTABLISHED,RELATED
 62: iptables -A inetdmz -p tcp -j REJECT --reject-with tcp-reset
 </verb></tscreen>
 In questo caso, la prima regola &egrave; un po' superflua ma estremamente
@@ -3861,212 +3506,39 @@ le regole verranno automaticamente caricate ad ogni accensione della macchina.
 In quest'ultimo caso, potreste voler dare un'occhiata a <file>/etc/default/iptables</file>.
 
 
+<!--
 <sect>Troubleshooting<p>
 Cos&igrave; avete configurato il vostro primo firewall, eh?
 Beh, immagino che una volta caricato il vostro script abbia funzionato
 tutto al primo colpo, giusto? Internet funzionava, gli utenti
 erano contenti, ed il firewall sembrava macinare pacchetti come
 un trattore...<p>
-No? Beh, vediamo allora cosa si pu&ograve; fare... 
-Il primo passo, come in qualsiasi procedura di troubleshooting, &egrave; 
-capire cosa ci sia esattamente che non va. Sembra una banalit&agrave;,
-ma dire che ``la rete non funziona'', ``internet non va'' o ``non riesco a...'' 
-il pi&ugrave; delle volte non &egrave; sufficiente. Una volta capito cosa c'&egrave;
-che non va, il secondo passo consiste nell'isolare il problema e nel tentare di capire 
-dove risiede l'errore. Analizzare pi&ugrave; di un problema per volta porter&agrave; difficilmente
-alle corrette conclusioni, e partite <bf><it>sempre</it></bf> dall'assunzione che non
+No? Beh, vediamo allora cosa si pu&ograve; fare... la, procedura,
+anche in questo caso, &egrave; abbastanza semplice. Il primo passo,
+come in qualsiasi procedura di troubleshooting, &egrave; capire cosa
+c'&egrave; che non va. Il secondo, &egrave; tentare di capire qual'&egrave; il 
+problema. Partite <bf><it>sempre</it></bf> dall'assunzione che non
 ci sono errori nel codice di networking, risparmierete un sacco
-di tempo.<p>
-Se qualcosa non va, c'&egrave; sicuramente un problema in un punto della
-vostra configurazione. Se una parte &egrave; (o sembra) corretta, l'errore non pu&ograve;
-che risiedere da un'altra parte. Non intestarditevi su un particolare punto della configurazione
-e tentate di limitarvi ad analizzare razionalmente i fatti, 
-i pacchetti che vedete passare e quelli che invece non vedete e che dovrebbero
-passare. Ripercorrete mentalmente il percorso dei vostri pacchetti dalla prima
-all'ultima regola facendo attenzione alle interazioni tra NAT e firewalling, eventualmente
-inserendo qualche regola di LOGGING (se ne parler&agrave; in seguito) per verificare
-cosa stia succedendo. 
-Infine, verificate di aver individuato effettivamente il problema, facendo delle prove e dei 
-test, dopodich&eacute; provate a cambiare la configurazione. Se il problema cessa di esistere, 
-allora l'avete risolto. Se ancora c'&egrave; qualcosa che non va, ripartite
-dal primo passo.<p> 
+di tempo. Per il resto, non intestarditevi sulla vostra configurazione e
+tentate di limitarvi ad analizzare i fatti, i pacchetti che vedete 
+passare e quelli che invece non vedete passare. Terzo, 
+cercate di isolare il problema e di analizzare un unico problema
+per volta. Infine, verificate che si &egrave; individuato effettivamente 
+il problema, facendo delle prove e dei test, dopodich&eacute; provate
+a cambiare la configurazione. Se il problema cessa di esistere, allora
+l'avete risolto. Se ancora c'&egrave; qualcosa che non va, ripartite
+dal primo passo. La procedura dovrebbe esservi utile anche se la
+vostra rete ha appena smesso di funzionare...<p> Come vedrete,
+per&ograve;, &egrave; estremamente difficile individuare e risolvere 
+i problemi di networking senza avere dei punti stabili di appoggio: non &egrave; possibile 
+correggere problemi di configurazione di un client con il firewall
+che non funziona, ed &egrave; difficile capire cosa ci sia che non va 
+in un firewall utilizzando un client mal configurato. L'esperienza vi potr&agrave;
+essere di aiuto, ma un nuovo firewall porta sempre a delle  
+modifiche nei client, per cui sar&agrave; difficile crearsi dei punti 
+stabili di appoggio.
 
 <sect1>Capire cosa c'&egrave; che non va<p>
-Partiamo da una semplice assunzione: se qualcosa non va, non sta 
-funzionando come dovrebbe. Ok, detto questo, prendiamo un client
-collegato alla nostra rete ed il nostro firewall. Prima di tutto,
-dobbiamo verificare la configurazione del client. Controlliamo ancora
-una volta la configurazione dell'indirizzo ip, della netmask, del
-gateway e del dns e facciamo alcuni test.<p>
-
-<sect2>Problemi fisici<p>
-Se il client &egrave; configurato correttamente, sar&agrave; in grado di comunicare 
-con altri client. Proviamo
-quindi da riga di comando a ``pingare'' qualcun altro sulla nostra rete, 
-con un comando del tipo ``ping indirizzo_ip_di_un_altro_client''. 
-Ovviamente, i ping dovranno essere consentiti su entrambi i client 
-(non bloccati con regole di firewalling). Ping &egrave; un comando abbastanza stupido
-che si limita a mandare dei pacchetti che il ricevente normalmente rispedisce al mittente
-(da qui il nome di ping - il pacchetto di ritorno, viene a volte chiamato ``pong'').
-Come prima cosa, ping ci potrebbe restituire un errore del tipo:
-<tscreen><verb>
-Network is unreachable
-</verb></tscreen>
-a volerci dire che il kernel non conosce un modo per contattare l'indirizzo
-ip indicato. Ricontrollate le tabelle di routing, la configurazione delle
-varie interfaccie e verificate di averle attivate (``ip link set eth0 up'', per
-esempio'').<p>
-Se invece vediamo una riga simile a:
-<tscreen><verb>
-PING 10.0.0.2 (10.0.0.2): 56 data bytes
-</verb></tscreen>
-vuol dire che ping ha iniziato ad inviare pacchetti della dimensione di 
-56 bytes all'indirizzo ip indicato, ma che non ha ancora ricevuto
-risposta. Un output normale, a questo punto,
-dovrebbe essere simile a:
-<tscreen><verb>
-PING 10.0.0.2 (10.0.0.2): 56 data bytes
-64 bytes from 10.0.0.2: icmp_seq=0 ttl=64 time=0.1 ms
-64 bytes from 10.0.0.2: icmp_seq=1 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=2 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=3 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=4 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=5 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=6 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=7 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=8 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=9 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=10 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=11 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=12 ttl=64 time=0.0 ms
-64 bytes from 10.0.0.2: icmp_seq=13 ttl=64 time=0.0 ms
-
---- 10.0.0.2 ping statistics ---
-14 packets transmitted, 14 packets received, 0% packet loss
-round-trip min/avg/max = 0.0/0.0/0.1 ms
-</verb></tscreen>
-Attenzione che in sistemi linux ping continuer&agrave; ad inviare
-pacchetti e ad aspettare risposte fin tanto che non verr&agrave; premuto 
-un ctrl+c dall'utente.<p>
-Ci sono 4 informazioni che possono aiutare ad individuare problemi cui &egrave;
-bene fare caso guardando l'output di ping:
-<itemize>
-  <item><it/icmp_seq/ - ping, ogni volta che invia un pacchetto,
-  	incrementa questo numero di uno. Su schermo sono
-	visualizzate le risposte a questi pacchetti, che devono
-	contenere lo stesso numero di sequenza dei pacchetti
-	inviati. Se i pacchetti tornano indietro in un ordine 
-	diverso da quello in cui sono stati inviati in una 
-	rete locale o comunque di piccole dimensioni, 
-	&egrave; sintomo di un problema. I pacchetti seguono
-	percorsi diversi? Perch&egrave; alcuni pacchetti tornano
-	pi&ugrave; velocemente di altri? 
-  <item><it/ttl/ - su una rete locale, non dovrebbe essere
-   	decrementato. Su reti un pochino pi&ugrave; grosse,
-	dovrebbe essere decrementato di uno per ogni router 
-	incontrato. Se i pacchetti seguono tutti uno stesso 
-	percorso, il ttl dovrebbe sempre avere uno stesso 
-	valore.
-  <item><it/packet loss/ - su una rete sana, non ci dovrebbe
-  	essere perdita di pacchetti, bench&egrave; meno su una
-	rete locale. Una perdita del 100% indica normalmente un
-	errore di cablatura (due computer non possono fisicamente
-	comunicare) o di hardware (uno dei due computer &egrave; spento, per esempio :).
-	Valori diversi o variabili indicano comunque un problema di
-	cavi o di hardware di rete (distanze superiori a 100m coperte con
-	cavi ethernet normali, switch guasti...).
-  <item><it/tempi/ - su una rete locale, non dovrebbero superare
-  	alcune decine %TODO% di ms.
-</itemize>
-Se ping ha avuto successo (0% packet loss e dei tempi ragionevoli)
-provate a ripetere la prova pingando altri computer della
-stessa rete ed il firewall stesso. Per poter escludere ogni tipo di problema 
-fisico di comunicazione, &egrave; necessario ripetere queste operazioni
-utilizzando almeno un client per ogni rete.<p>
-Infine, conviene controllare anche la connettivit&agrave; del firewall
-ad internet o alle reti cui &egrave; collegato. Per fare questo,
-vi conviene provare a disabilitare temporaneamente le regole 
-di firewalling e pingare gli altri router cui &egrave; collegato, ed
-alcuni client a campione parte delle varie reti.<p>
-Un problema di ping con il 100% di packet loss si risolve normalmente 
-verificando la cablatura e la configurazione dei vari computer, mentre
-con valori minori verificando un tratto di cavo per volta tra i due
-client, al fine di identificare l'apparecchio (switch, cavo, o 
-scheda di rete) che sta creando dei problemi. Un'altra soluzione,
-avendo ben chiara la struttura della rete, &egrave; quella di provare
-a pingare computer diversi in modo da testare percorsi diversi e da poter 
-quindi escludere (o includere) quei tratti di percorso comuni al percorso
-che aveva problemi.<p>
-
-<sect3>Problemi frequenti<p>
-<itemize>
-  <item>In un firewall, &egrave; piuttosto comune avere pi&ugrave; di
-  	una scheda di rete. Verificate quindi che alla scheda corretta 
-	sia collegato il cavo corretto. Se avete configurato
-	tutto in modo che eth0 fosse collegata alla rete interna,
-	eth1, alla rete esterna e cos&igrave; via, dovrete essere
-	sicuri di aver collegato il cavo interno a eth0, il cavo
-	esterno... spesso per&ograve; &egrave; difficile
-	capire quale scheda di rete linux abbia chiamato eth0 o eth1. <p>
-	Un metodo molto veloce &egrave; quello di munirsi di un pennarello
-	per acetato (di quelli usati per scrivere sui cd) e di collegare una
-	scheda di rete per volta, verificando poi con ``tcpdump'' su 
-	quale scheda di rete &egrave; possibile vedere del traffico, provando
-	prima con ``tcpdump -nei eth0'', ``tcpdump -nei eth1'' e cos&igrave; via.
-	Se non avete mai utilizzato tcpdump, non lasciatevi intimorire 
-	dall'output. L'unica cosa che fa tcpdump &egrave; mostrare le 
-	intestazioni dei pacchettini che vede transitare sulla rete. <p>
-	Attenzione per&ograve; che a voi interessa vedere il traffico trasmesso
-	da altri sul cavo, e non quello generato da voi (che potrebbe essere
-	generato indipendentemente dalla presenza del cavo). Se le tabelle di routing 
-	sono configurate, infatti, le schede di rete tenteranno di trovare il gateway
-	spesso anche con il cavo staccato. Prima di andar di pennarello, verificate quindi
-	che il mittente dei pacchetti che state vedendo non sia il vostro stesso
-	computer :-).
-  <item>In una rete ethernet
-	<itemize>
-	  <item>per collegare due computer <bf/direttamente/
-	  	(senza passare da uno switch o da un hub) serve 
-		un cavo <it/crossover/, aka ``cavo invertito''.
-	  <item>per collegare due switch tra di loro, serve
-	  	ancora un cavo <it/crossover/. Attenzione
-		per&ograve; che gli switch e gli hub hanno
-		spesso uno spinotto chiamato ``uplink''. 
-		In alcuni switch/hub un cavo collegato in questo
-		spinotto verr&agrave; invertito automaticamente
-		(invece di necessitare un cavo invertito, viene
-		``invertita la spina''). In altri
-		invece, ci sar&agrave; un bottone da qualche 
-		parte per permettere di invertire il cavo 
-		inserito in tale spinotto.<p>
-		Ancora, attenzione che se state collegando
-		due switch/hub tra di loro solo uno dei due
-		spinotti dovr&agrave; essere invertito, altrimenti 
-		andrete a finire ancora ad avere bisogno
-		di un cavo crossover. In pratica &egrave;
-		bene su uno switch/hub usare l'uplink, mentre
-		sull'altro utilizzare uno spinotto normale.
-	  <item>per collegare un computer ad un hub/switch,
-	  	vi servir&agrave; invece un cavo normale.
-	</itemize>
-	Infine, attenzione che in Italia spesso vengono
-	venduti cavi ethernet ``crossover'' inutilizzabili:
-	in questi cavi, tutti i fili sono collegati al
-	contrario. Perch&egrave; il cavo sia utilizzabile,
-	invece, solo alcuni fili devono avere la posizione scambiata.
-	Fate molta attenzione!
-</itemize>
-
-
-<sect2>Problemi di configurazione<p>
-Una volta esclusa la possibilit&agrave; che si tratti di un problema 
-fisico di collegamento, &egrave; possibile cercare problemi di configurazione
-o di comunicazione pi&ugrave; generici.<p>
-Prima di procedere, sar&agrave;
-oltre cercando eventuali problemi di configurazione. Questa &egrave;
-probabilmente
-
-
 Beh, prima di tutto se avete affermato che un problema c'&egrave;
 e se lo state cercando vuol dire che avete fatto qualche prova
 che non ha dato buoni risultati. Con buona probabilit&agrave;,
