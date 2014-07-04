@@ -1,3 +1,7 @@
+# Constructs like {} are not compatible with the original /bin/sh,
+# the default does not work on debian systems using /bin/dash as /bin/sh.
+SHELL = /bin/bash
+
 OPT_SGML = -d -c latin -p a4 --language=it
 OPT_HTML = -s 2 
 OPT_TXT = --filter -b 2 -P '\-T latin1'
@@ -77,10 +81,10 @@ $(source).ps: $(source).dvi Makefile
 
 $(source).dvi: $(source).tex Makefile
 	@echo Generating .dvi version...;\
-	 elatex '\nonstopmode\input{$(source).tex}' &> ./log.sgml-dvi;\
+	 latex '\nonstopmode\input{$(source).tex}' &> ./log.sgml-dvi;\
 	 cat ./$(source).log >> ./log.sgml-dvi
 	@echo "  Generating index...";\
-	 elatex '\nonstopmode\input{$(source).tex}' 2>&1 >> ./log.sgml-dvi;\
+	 latex '\nonstopmode\input{$(source).tex}' 2>&1 >> ./log.sgml-dvi;\
 	 cat ./$(source).log >> ./log.sgml-dvi
 	@echo "  Removing temporary files...";\
 	 rm -f ./$(source).{log,toc,aux} 
@@ -109,5 +113,6 @@ html:
 
 clean:
 	rm -rf ./$(source){,.dvi,.html.tar.gz,.pdf,.ps,.ps.gz,.tex,.txt}
-	rm -f ./log.*
+	rm -f ./log.* ./*.log ./*.out ./*.toc ./*.aux
 	rm -f ./{body,head}.tmp
+
