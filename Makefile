@@ -3,7 +3,7 @@
 SHELL = /bin/bash
 
 OPT_SGML = -d -c latin -p a4 --language=it
-OPT_HTML = -s 2 
+OPT_HTML = -s 0 -T 2
 OPT_TXT = --filter -b 2 -P '\-T latin1'
 OPT_TEX = --output=tex 
 OPT_PS = -z 
