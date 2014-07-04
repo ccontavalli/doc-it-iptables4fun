@@ -1,6 +1,6 @@
-If you speak English, the next section is for you.
+**If you speak English, the next section is for you.**
 
-Se parli Italiano, puoi saltare la prossima sezione.
+**Se parli Italiano, puoi saltare la prossima sezione.**
 
 
 What is this?
@@ -84,6 +84,4 @@ Per aggiornare il .pdf, .html, ... devi:
 
           $ make
           ...
-
-      Per avere tutti i formati generati.
 
