@@ -49,13 +49,6 @@ log.check: $(source).sgml Makefile
 $(source).txt: $(source).sgml Makefile
 	@echo Generating $(@)...;\
 	 sgml2txt $(OPT_SGML) $(OPT_TXT) ./$(source).sgml &> log.sgml-txt
-	@echo "  Stripping invalid characters...";\
-	 cat ./$(source).txt | col -bp \
-	   | sed -e 's/1m//g' -e 's/0m//g' \
-	         -e 's/4m//g' -e 's/24m//g'\
-		 -e 's/22m//g' > $(source).txt.new; \
-	 echo "  Renaming file...";\
-	 mv $(source).txt.new $(source).txt;	
 
 $(source)/$(source).html: $(source).sgml Makefile
 	@echo "Generating html version...";\

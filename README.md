@@ -55,6 +55,8 @@ Per leggere questo tutorial, potete:
    * Scaricarlo nel formato per voi piu\` conveniente. Per esempio,
      potete usare
      [il .pdf](http://goo.gl/BhWRs6) oppure [il .txt](http://goo.gl/H4xN8M).
+     Per leggere il formato .txt, consiglio di usare un semplice `less -r`,
+     per visualizzare correttamente il file.
 
    * Navigare il tutorial online, [utilizzando questo link](http://goo.gl/xmTs5M).
 
