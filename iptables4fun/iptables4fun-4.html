@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Nozioni di base sui firewall</TITLE>
+ <LINK HREF="iptables4fun-5.html" REL=next>
+ <LINK HREF="iptables4fun-3.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc3" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-5.html">Avanti</A>
+<A HREF="iptables4fun-3.html">Indietro</A>
+<A HREF="iptables4fun.html#toc3">Indice</A>
+<HR>
+<H2><A NAME="s3">3.</A> <A HREF="iptables4fun.html#toc3">Nozioni di base sui firewall</A></H2>
+
+<P>Prima di entrare nel cuore della trattazione, conviene fare una 
+piccola introduzione. Se gi&agrave; sapete cos'&egrave; un firewall
+e avete una discreta idea di come funzioni una rete, potete saltare
+senza troppi rimpianti questa sezione. Se invece non avete le 
+idee tanto chiare o se per la prima volta vi trovate ad affrontare
+problematiche di questo tipo, vi consiglio di continuare...</P>
+<P>Comunque sia, partendo da zero, un firewall linux non &egrave; 
+altro che un semplice personal computer normalmente collegato 
+fisicamente (con dei cavi) a pi&ugrave; di una rete. </P>
+<P>Un firewall avr&agrave; quindi installata una scheda di rete (interfaccia)
+per ogni rete cui sar&agrave; collegato. Inoltre, dovr&agrave;
+costituire l'unico punto di contatto tra le reti cui &egrave; connesso.</P>
+<P>Per spiegarmi meglio, un firewall dovr&agrave; costituire l'unico punto 
+di collegamento tra due o pi&ugrave; reti. Un po' come un ponte che 
+collega due o pi&ugrave; isole. 
+Senza entrare nei dettagli del protocollo ip, tutte le comunicazioni 
+tra queste reti saranno quindi costrette a passare da questo computer.</P>
+<P>Questo computer, una volta configurato come firewall, sar&agrave; in
+grado di decidere cosa far passare, cosa scartare o come reagire a 
+determinati eventi. Tornando all'esempio del nostro ponte, configurare
+il computer come firewall pu&ograve; essere considerato equivalente
+a mettere una stanga e 2 finanzieri che controllano tutti i veicoli
+e le persone in transito. Questi 2 finanzieri saranno quindi in grado
+di agire secondo le istruzioni che gli verranno date dal ministero, 
+bloccando veicoli, arrestando i contrabbandieri o sparando a vista
+ai ricercati.</P>
+<P>In linux, la stanga e i finanzieri sono messi a disposizione direttamente
+dal kernel. Per controllare il kernel, per dare cio&egrave; le direttive
+ai finanzieri, vengono messi a disposizione diversi comandi: con il
+kernel 2.4, i principali e pi&ugrave; avanzati sono comunque il 
+comando ``ip'', ``tc'' e ``iptables'', i primi due inclusi nel
+pacchetto ``iproute'' mentre il terzo distribuito indipendentemente.</P>
+<P>Procedendo con ordine, in linea di principio il comando ``ip'' vi consente di creare nuove isole
+e nuovi ponti, di gestire quindi le tabelle di routing e le interfacce di
+rete, il comando iptables di istruire i finanzieri dicendo
+cosa far passare e cosa non far passare o come reagire a determinate
+condizioni, consente cio&egrave; di creare dei filtri. Infine, il 
+comando tc, vi consente di stabilire delle priorit&agrave; e dei
+limiti sul traffico in ingresso ed in uscita. Ad esempio, un compito
+che esula dal filtraggio e che quindi riguarda tc potrebbe essere quello
+di riservare alcune corsie al passaggio di veicoli di emergenza o
+di servizio, limitando magari il traffico automobilistico, di 
+riservare cio&egrave; determinate quantit&agrave; di banda a
+determinate tipologie di traffico. </P>
+<P>Riassumendo, quindi, si parler&agrave; del comando 
+<UL>
+<LI>ip -- per configurare, attivare, disattivare o creare
+interfacce di rete, nonch&eacute; per gestire
+le tabelle di routing (da solo rimpiazza
+i comandi ifconfig, route e arp).</LI>
+<LI>iptables -- per bloccare, consentire o registrare
+il traffico, per effettuare cio&egrave; 
+firewalling, ovvero per modificare
+alcune caratteristiche dei pacchetti in transito,
+per effettuare cio&egrave; NAT (Network Address
+Translation).</LI>
+<LI>tc -- per assegnare delle priorit&agrave;, imporre
+delle precedenze o dei limiti di banda (tc
+sta per ``traffic classifier''), in poche
+parole, per effettuare dello shaping.</LI>
+</UL>
+
+In questo documento si parler&agrave; prevalentemente del comando iptables.</P>
+
+<HR>
+<A HREF="iptables4fun-5.html">Avanti</A>
+<A HREF="iptables4fun-3.html">Indietro</A>
+<A HREF="iptables4fun.html#toc3">Indice</A>
+</BODY>
+</HTML>

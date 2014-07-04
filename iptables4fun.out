@@ -1,0 +1,58 @@
+\BOOKMARK [1][-]{section.1}{Copyright e note legali...}{}% 1
+\BOOKMARK [1][-]{section.2}{Prima di cominciare}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Ringraziamenti}{section.2}% 3
+\BOOKMARK [1][-]{section.3}{Nozioni di base sui firewall}{}% 4
+\BOOKMARK [2][-]{subsection.3.1}{Tipologie di firewall}{section.3}% 5
+\BOOKMARK [3][-]{subsubsection.3.1.1}{Firewall stateless e firewall statefull}{subsection.3.1}% 6
+\BOOKMARK [3][-]{subsubsection.3.1.2}{Firewall e protocolli}{subsection.3.1}% 7
+\BOOKMARK [3][-]{subsubsection.3.1.3}{Proxy server}{subsection.3.1}% 8
+\BOOKMARK [3][-]{subsubsection.3.1.4}{Socks server}{subsection.3.1}% 9
+\BOOKMARK [1][-]{section.4}{Preparare il proprio sistema}{}% 10
+\BOOKMARK [2][-]{subsection.4.1}{Procurarsi i sorgenti}{section.4}% 11
+\BOOKMARK [3][-]{subsubsection.4.1.1}{Se usate debian...}{subsection.4.1}% 12
+\BOOKMARK [2][-]{subsection.4.2}{Patchare e prepararsi a ricompilare...}{section.4}% 13
+\BOOKMARK [3][-]{subsubsection.4.2.1}{iptables 1.2.6 - Usare il patch-o-matic}{subsection.4.2}% 14
+\BOOKMARK [3][-]{subsubsection.4.2.2}{iptables 1.2.7 - Usare il patch-o-matic}{subsection.4.2}% 15
+\BOOKMARK [3][-]{subsubsection.4.2.3}{Altre patch}{subsection.4.2}% 16
+\BOOKMARK [2][-]{subsection.4.3}{Preparare il kernel}{section.4}% 17
+\BOOKMARK [3][-]{subsubsection.4.3.1}{Configurarlo}{subsection.4.3}% 18
+\BOOKMARK [3][-]{subsubsection.4.3.2}{Ricompilarlo}{subsection.4.3}% 19
+\BOOKMARK [2][-]{subsection.4.4}{Compilare iptables}{section.4}% 20
+\BOOKMARK [2][-]{subsection.4.5}{Compilare iproute}{section.4}% 21
+\BOOKMARK [3][-]{subsubsection.4.5.1}{In Debian}{subsection.4.5}% 22
+\BOOKMARK [1][-]{section.5}{Hardening the system }{}% 23
+\BOOKMARK [2][-]{subsection.5.1}{Ridurre i punti di ingresso}{section.5}% 24
+\BOOKMARK [3][-]{subsubsection.5.1.1}{inetd.conf}{subsection.5.1}% 25
+\BOOKMARK [3][-]{subsubsection.5.1.2}{Directory /etc/init.d}{subsection.5.1}% 26
+\BOOKMARK [3][-]{subsubsection.5.1.3}{Demoni}{subsection.5.1}% 27
+\BOOKMARK [2][-]{subsection.5.2}{Ripulire il sistema}{section.5}% 28
+\BOOKMARK [2][-]{subsection.5.3}{Rilevare le intrusioni}{section.5}% 29
+\BOOKMARK [3][-]{subsubsection.5.3.1}{Process accounting}{subsection.5.3}% 30
+\BOOKMARK [1][-]{section.6}{Pericoli \205 ovvero, da cosa dovr\340 difendervi il firewall}{}% 31
+\BOOKMARK [2][-]{subsection.6.1}{Assunzioni errate}{section.6}% 32
+\BOOKMARK [2][-]{subsection.6.2}{Sicurezza degli switch}{section.6}% 33
+\BOOKMARK [1][-]{section.7}{Preparare il kernel ad andare in rete \205 overview di /proc }{}% 34
+\BOOKMARK [2][-]{subsection.7.1}{Utilizzo dei file in /proc}{section.7}% 35
+\BOOKMARK [2][-]{subsection.7.2}{Alcuni file importanti}{section.7}% 36
+\BOOKMARK [1][-]{section.8}{Filtrare il traffico con iptables}{}% 37
+\BOOKMARK [2][-]{subsection.8.1}{Preambolo}{section.8}% 38
+\BOOKMARK [2][-]{subsection.8.2}{Configurare le interfacce}{section.8}% 39
+\BOOKMARK [2][-]{subsection.8.3}{Il comando iptables }{section.8}% 40
+\BOOKMARK [2][-]{subsection.8.4}{Definizione delle policy}{section.8}% 41
+\BOOKMARK [2][-]{subsection.8.5}{La nostra configurazione}{section.8}% 42
+\BOOKMARK [2][-]{subsection.8.6}{Prime catene}{section.8}% 43
+\BOOKMARK [3][-]{subsubsection.8.6.1}{Dalla LAN alla DMZ}{subsection.8.6}% 44
+\BOOKMARK [3][-]{subsubsection.8.6.2}{Dalla DMZ alla LAN}{subsection.8.6}% 45
+\BOOKMARK [3][-]{subsubsection.8.6.3}{Dalla LAN ad Internet}{subsection.8.6}% 46
+\BOOKMARK [3][-]{subsubsection.8.6.4}{Da Internet alla LAN}{subsection.8.6}% 47
+\BOOKMARK [3][-]{subsubsection.8.6.5}{Da Internet alla DMZ}{subsection.8.6}% 48
+\BOOKMARK [3][-]{subsubsection.8.6.6}{Dalla DMZ ad Internet}{subsection.8.6}% 49
+\BOOKMARK [3][-]{subsubsection.8.6.7}{Traffico da e per il firewall}{subsection.8.6}% 50
+\BOOKMARK [1][-]{section.9}{NAT con iptables}{}% 51
+\BOOKMARK [2][-]{subsection.9.1}{Dalla teoria alla pratica}{section.9}% 52
+\BOOKMARK [1][-]{section.10}{Mettere tutto insieme}{}% 53
+\BOOKMARK [2][-]{subsection.10.1}{Configurazione dei client}{section.10}% 54
+\BOOKMARK [1][-]{section.11}{Modifiche on the fly - iptables da riga di comando}{}% 55
+\BOOKMARK [2][-]{subsection.11.1}{Manipolare le catene}{section.11}% 56
+\BOOKMARK [2][-]{subsection.11.2}{Salvare le modifiche}{section.11}% 57
+\BOOKMARK [1][-]{section.12}{Conclusioni}{}% 58

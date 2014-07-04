@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Preparare il proprio sistema</TITLE>
+ <LINK HREF="iptables4fun-7.html" REL=next>
+ <LINK HREF="iptables4fun-5.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc4" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-7.html">Avanti</A>
+<A HREF="iptables4fun-5.html">Indietro</A>
+<A HREF="iptables4fun.html#toc4">Indice</A>
+<HR>
+<H2><A NAME="s4">4.</A> <A HREF="iptables4fun.html#toc4">Preparare il proprio sistema</A></H2>
+
+<P>Per poter usufruire delle nuove funzionalit&agrave; messe a disposizione 
+dal kernel di linux, &egrave; indispensabile che il vostro sistema 
+soddisfi alcuni prerequisiti.</P>
+<P>In particolare, dovrete avere a disposizione:
+<UL>
+<LI>Un kernel compilato con supporto per iptables, per il tracking (tracciamento)
+delle connessioni e per tutti i tipi di NAT (i kernel delle maggiori
+distribuzioni vengono distribuiti con i moduli necessari).</LI>
+<LI>Una versione di iptables compilata per il vostro kernel.</LI>
+<LI>Eventualmente, una versione del pacchetto ``iproute'', sempre compilato
+per essere usato con il vostro kernel.</LI>
+</UL>
+
+Tutti questi strumenti sono solitamente preimpacchettati e disponibili nella maggior
+parte delle distribuzioni, per cui, probabilmente, non avrete nulla da fare 
+se non qualche ``apt-get install iproute iptables'' o ``rpm -i''. Per verificare
+la loro presenza, potreste provare ad eseguire come ``root'' da riga di
+comando i comandi ``iptables'', ``tc'', ip. Se linux non vi restituisce un
+errore del tipo ``commando not found'' o ``comando non trovato'', allora sono
+gi&agrave; installati e probabilmente il kernel supporta tutte le funzionalit&agrave;
+di cui avrete bisogno.</P>
+<P>Se per&ograve; volete dilettarvi con funzionalit&agrave; particolarmente avanzate ed
+avere il massimo di flessibilit&agrave; possibile, vi consiglio di ricompilare
+indipendentemente sia il kernel che iptables ed iproute. Come avrete capito,
+questa non &egrave; proprio una strada semplice da seguire, soprattutto se siete utenti
+linux alle prime armi. Non vi potrei biasimare quindi se decideste di usufruire
+degli strumenti messi a disposizione dalla vostra distribuzione e se decideste di 
+saltare completamente questa sezione. In caso contrario, i prossimi paragrafi 
+cercheranno di esservi di aiuto nel processo di ricompilare e nel capire 
+alcuni meccanismi che stanno alla base del sistema di ricompilazione del codice di 
+networking di linux.</P>
+<P>Comunque sia, se avete deciso di andare avanti per la strada del ``ricompilare'' vi consiglio di fare
+tutto su una macchina che non sia il firewall: avrete la certezza di non dimenticare in
+giro tools come gcc, make, o le binutils. Attenzione per&ograve; che senza usare i tool di impacchettamento
+messi a disposizione dalla vostra distribuzione, potrebbe diventare alquanto complesso e tedioso
+spostare i programmi appena compilati da una macchina all'altra... in questo documento verranno
+dati spunti per utilizzare i tool di Debian a questo proposito.</P>
+<P>Infine, vi consiglio di eseguire le operazioni nell'ordine in cui sono presentate, onde
+evitare problemi di dipendenze.</P>
+
+
+<HR>
+<A HREF="iptables4fun-7.html">Avanti</A>
+<A HREF="iptables4fun-5.html">Indietro</A>
+<A HREF="iptables4fun.html#toc4">Indice</A>
+</BODY>
+</HTML>

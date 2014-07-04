@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Hardening the system : Ripulire il sistema</TITLE>
+ <LINK HREF="iptables4fun-15.html" REL=next>
+ <LINK HREF="iptables4fun-13.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc5" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-15.html">Avanti</A>
+<A HREF="iptables4fun-13.html">Indietro</A>
+<A HREF="iptables4fun.html#toc5">Indice</A>
+<HR>
+<H2>5.2 <A HREF="iptables4fun.html#toc5.2">Ripulire il sistema</A></H2>
+
+<P>
+<UL>
+<LI>Eliminate tutti i tool di compilazione (make, gcc...), gli header file, o
+tutti quei tool di debugging (gdb, objdump...) che potrebbero essere usati
+contro di voi. Se avete bisogno di ricompilare, potrete sfruttare una macchina
+di appoggio e i tool per creare i pacchetti messi a disposizione 
+dalla vostra distribuzione. In questo modo, non rischierete di dimenticare
+tool pericolosi o sorgenti in giro.
+
+</LI>
+<LI>Cercate poi tutti quei programmi noti come ``suid'' root, cio&egrave; che possono
+prendere i privilegi dell'amministratore una volta caricati (find / -perm +4000),
+e togliete loro questa possibilit&agrave; <B>valutando per&ograve; caso per caso</B>. Ad esempio 
+vorrete probabilmente lasciare /bin/login suid root, mentre a ping, mount &amp; co. credo
+possa essere tolto tranquillamente questo privilegio con comandi del tipo ``chmod ug-s nomefile''.</LI>
+<LI>Configurate propriamente fstab, lasciando solo
+/var scrivibile e lasciando tutte le altre partizioni read-only, limitando persino la
+creazione di dispositivi o l'esecuzione di file suid root. Un esempio di fstab 
+potrebbe essere il seguente:
+<BLOCKQUOTE><CODE>
+<PRE>
+proc          /proc     proc      defaults                       0 0 
+/dev/hda1     none      swap      sw                             0 0
+/dev/hda5     /         ext2      ro,defaults,errors=remount-ro  0 1 
+/dev/hda2     /boot     ext2      ro,nosuid,noexec,nodev,nouser  0 3 
+/dev/hda7     /var      reiserfs  rw,nosuid,nodev,nouser         0 3 
+/dev/hda8     /home     reiserfs  rw,nosuid,nodev,nouser         0 3
+</PRE>
+</CODE></BLOCKQUOTE>
+
+dove <I>nosuid</I> indica al kernel di non eseguire programmi con privilegi suid, <I>noexec</I> di non
+eseguire alcun programma, <I>nodev</I> di non consentire la creazione di dispositivi
+e infine <I>nouser</I> di non permettere agli utenti di montare o smontare la partizione indicata.
+<P>Attenzione per&ograve; che la vostra distribuzione potrebbe non essere troppo contenta
+di avere a che fare con dischi readonly, soprattutto per quanto riguarda la 
+root. Una soluzione che ho visto funzionare abbastanza bene (salvo qualche directory)
+&eacute; stata quella di scrivere due script, mkro e mkrw, il primo per rendere la root
+read only ed il secondo per renderla read write, e di installarli in modo che venissero
+eseguiti rispettivamente come l'ultimo comando a startup ed il primo comando a shutdown.
+In Debian, &egrave; possibile fare questo copiando i due file nella directory /etc/init.d
+e dando i comandi ``update-rc.d mkro start 99 2'' e ``update-rc.d mkrw stop 00 6''.</P>
+<P> 
+Cos&igrave; facendo, la partizione di root dovrebbe essere indicata come ``rw'' nel file 
+fstab.</P>
+<P>Notate inoltre che in /var viene consentita l'esecuzione di programmi: questo perch&eacute; la 
+maggior parte delle distribuzioni utilizzano /var per conservare gli 
+script di installazione/disinstallazione dei vari pacchettini che devono essere eseguiti.</P>
+<P>Infine, attenzione che la partizione che contiene la directory /dev deve essere montata 
+come rw... una buona soluzione &eacute; quella di utilizzare o una partizione a parte, o una partizione
+creata da un ramdisk o shm, oppure utilizzare il devfs con il demone devfsd (soluzione sicuramente 
+migliore).</P>
+<P>Per quanto riguarda /tmp, questa viene utilizzata da molti programmi e deve quindi 
+essere scrivibile. Sempre che non abbiate creato una partizione indipendente per /tmp, una soluzione 
+potrebbe essere quella di creare un symlink /tmp a /var/tmp, oppure sfruttare 
+le nuove capacit&agrave; del kernel 2.4 aggiungendo da qualche parte nei file eseguiti all'avvio un comando
+del tipo:
+<BLOCKQUOTE><CODE>
+<PRE>
+  mount --bind /var/tmp /tmp
+</PRE>
+</CODE></BLOCKQUOTE>
+
+che monterebbe in maniera molto particolare (estremamente simile ad un hard link) la directory 
+/var/tmp su /tmp. Attenzione per&ograve; che il FHS (lo standard per 
+la struttura del file system), indica che in /tmp i file possono essere rimossi 
+in qualsiasi istante dall'amministratore del sistema, e consiglia di ripulire /tmp durante i 
+reboot. Al contrario, /var/tmp non deve essere ripulita durante i reboot e deve consentire la 
+creazione di file ``abbastanza persistenti''.  Per evitare problemi con la vostra distribuzione, 
+&egrave; quindi consigliabile far puntare /tmp ad una sottodirectory di /var/tmp in 
+modo che un'eventuale pulizia periodica di /tmp non rimuova tutti i file di /var/tmp. 
+Per esempio, potreste fare qualcosa del tipo:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+mkdir /var/tmp/removable/
+mount --bind /var/tmp/removable/ /tmp
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Piuttosto che
+<BLOCKQUOTE><CODE>
+<PRE>
+mkdir /var/tmp/removable/
+cd /; ln -s /var/tmp/removable ./tmp
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Infine, parlando di partizioni read only o read write, &egrave; bene dedicare un minimo di 
+attenzione al file /etc/mtab. In questo file viene mantenuto l'elenco delle
+partizioni montate col comando ``mount''. In pratica, quando date il comando ``mount'' da 
+solo, per vedere le partizioni montate, vi viene mostrato il contenuto di questo file.
+Il problema &egrave; che montando la root read only, mount non sar&agrave; in 
+grado di aggiornare questo file e di capire quali partizioni sono montate, dando origine a 
+degli errori piuttosto bizzarri. Una buona soluzione &egrave; quella di eliminare il file 
+mtab completamente e di creare un link simbolico in /etc che punti al file
+/proc/mounts. Questo file mostra le informazione conosciute dal kernel a proposito dei
+dischi montati, e non pu&ograve; quindi contenere errori. In pratica date:
+<BLOCKQUOTE><CODE>
+<PRE>
+cd /etc
+rm ./mtab
+ln -s /proc/mounts ./mtab
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+</LI>
+<LI> Per i file system ext2/3 potreste poi volere utilizzare il comando ``chattr +i nomefile'',
+per marcare i file a livello di filesystem come immodificabili. Questo &egrave; utile
+soprattutto perch&eacute; si tratta di una modifica poco visibile (normalmente non si vede con ls -al)
+e non consente nemmeno a root di modificare il file, a meno che prima non esegua
+un comando come ``chattr -i nomefile'', sempre che chattr non sia stato preventivamente
+rimosso dal sistema :-).
+
+</LI>
+<LI>Date un'occhiata a /etc/crontab e alle varie directory, eliminando ci&ograve;
+che non serve.  Ad esempio, su un sistema con dischi read-only non credo sia necessario
+aggiornare il database di ``locate''.  Spesso poi, gli script eseguiti da cron interagiscono con il
+sistema e pu&ograve; capitare che possano essere imbrogliati costringendoli a fare cose non volute. Normalmente
+tutte le distribuzioni tendono ad evitare errori di questo tipo ed &eacute; molto raro trovarne, ma una 
+verifica non costa nulla
+e pu&ograve; garantirvi un grado di sicurezza maggiore.</LI>
+<LI>Se sul sistema vi saranno altri utenti oltre root, date un'occhiata alle restrizioni imposte dalla 
+pam (/etc/pam.d) agli utenti ed al file /etc/login.defs.</LI>
+<LI>Se avete un kernel relativamente recente, date un'occhiata al comando ``lcap'' (in Debian, installate
+l'omonimo pacchetto, con ``apt-get install lcap''). lcap &egrave; un comando che vi consente di
+dire al kernel che <B>non</B> volete pi&ugrave; usufruire di determinati servizi (capability, ovvero
+``capacit&agrave;'' del kernel). Una volta detto questo al kernel, le capability non potranno
+pi&ugrave; essere acquisite dal kernel, a meno che la macchina non venga spenta e riavviata.
+Il fatto che il kernel di linux perda determinate ``capacit&agrave;'' pu&ograve; quindi dare 
+notevoli vantaggi dal punto di vista della sicurezza. Utilizzando il comando ``lcap'' senza
+alcun argomento, vi verr&agrave; data una lista delle ``capacit&agrave;'' che il kernel
+pu&ograve; decidere di lasciare, come per esempio:
+<BLOCKQUOTE><CODE>
+<PRE>
+Current capabilities: 0xFFFFFEFF
+   0) *CAP_CHOWN                   1) *CAP_DAC_OVERRIDE         
+   2) *CAP_DAC_READ_SEARCH         3) *CAP_FOWNER               
+   4) *CAP_FSETID                  5) *CAP_KILL                 
+   6) *CAP_SETGID                  7) *CAP_SETUID               
+   8)  CAP_SETPCAP                 9) *CAP_LINUX_IMMUTABLE      
+  10) *CAP_NET_BIND_SERVICE       11) *CAP_NET_BROADCAST        
+  12) *CAP_NET_ADMIN              13) *CAP_NET_RAW              
+  14) *CAP_IPC_LOCK               15) *CAP_IPC_OWNER            
+  16) *CAP_SYS_MODULE             17) *CAP_SYS_RAWIO            
+  18) *CAP_SYS_CHROOT             19) *CAP_SYS_PTRACE           
+  20) *CAP_SYS_PACCT              21) *CAP_SYS_ADMIN            
+  22) *CAP_SYS_BOOT               23) *CAP_SYS_NICE             
+  24) *CAP_SYS_RESOURCE           25) *CAP_SYS_TIME             
+  26) *CAP_SYS_TTY_CONFIG       
+    * = Capabilities currently allowed
+      
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Ad esempio, con ``lcap CAP_CHOWN'' il kernel mollerebbe la capacit&agrave; di far andare la
+chiamata di sistema CHOWN, rendendo impossibile il cambio di proprietario di un file.
+Eseguendo quindi il comando ``chown'', questo ci restituirebbe un errore del tipo ``Operation
+not permitted''. In breve, disattivare la capacit&agrave; del kernel:
+<UL>
+<LI>CAP_CHOWN -- inibisce il cambio di proprietario di un file, blocca il comando chown.
+Attenzione che, ad esempio in Debian, ogni volta che un utente completa il login
+viene fatto un chown sul dispositivo corrispondente alla sua console, onde evitare
+che altri (senza la sua autorizzazione) possano scrivere su tale dispositivo. Bloccare
+chown bloccher&agrave; quindi l'accesso a <B>tutti</B>, compreso l'amministratore,
+a meno che questa feture non venga disabilitata.</LI>
+<LI>CAP_NET_BIND_SERVICE -- inibisce l'apertura di porte TCP o UDP inferirori alla 1024, 
+impedendo il caricamento di nuovi servizi su porte standard.</LI>
+<LI>CAP_NET_ADMIN -- inibisce: il cambio di configurazione delle interfacce di rete o
+la configurazione di nuove interfacce, le operazioni di amministrazione del codice
+di firewalling, nat, accounting, l'abilitazione del debugging sulle socket, la 
+modifica delle tabelle di routing, l'abilitazione/disabilitazione del promiscuous
+mode e altre.</LI>
+<LI>CAP_SYS_MODULE -- inibisce il caricamento o la rimozione di moduli.</LI>
+<LI>CAP_SYS_CHROOT -- inibisce l'utilizzo di jail root, ovvero del comando chroot.</LI>
+<LI>CAP_SYS_PACCT -- inibisce il cambio di configurazione del process accounting .</LI>
+<LI>CAP_SYS_BOOT -- inibisce la possibilit&agrave; di riavviare la macchina tramite
+comandi.</LI>
+<LI>CAP_SYS_RESOURCE -- inibisce il cambio dei limiti di risorse imposti ai vari
+processi o delle quote imposte su disco (per fs ext2).</LI>
+<LI>CAP_SETUID -- inibisce l'utilizzo di programmi suid.</LI>
+<LI>CAP_LINUX_IMMUTABLE -- inibisce la possibilit&agrave; di cambiare il flag 
+immutabile tramite il comando ``chattr''</LI>
+<LI>CAP_NET_RAW -- inibisce la possibilt&agrave; di aprire PACKET o RAW socket,
+ovvero quelle socket che consentono a programmi come hping o nmap di
+scrivere direttamente i pacchetti sulle interfacce di rete.</LI>
+<LI>CAP_SYS_RAWIO -- inibisce la possibilit&agrave; di accedere direttamente
+ai dispositivi fisici. In pratica, non sar&agrave; pi&ugrave; possibile
+accedere a /dev/hda, /dev/hdb e cos&igrave; via.</LI>
+<LI>CAP_SYS_PTRACE -- inibisce l'utilizzo di ``ptrace()'', la chiamata che 
+consente a comandi come strace, ltrace o gdb di seguire il comportamento
+di un processo. </LI>
+<LI>CAP_SYS_ADMIN -- inibisce:
+<UL>
+<LI>la configurazione di quote su disco, la creazione di dispositivi,
+l'amministrazione di /dev/random e urandom.</LI>
+<LI>la configurazione dei messaggi inviati dal kernel a syslog, il cambio
+di nome di dominio, il cambio di hostname.</LI>
+<LI>l'utilizzo di mount e umount, l'abilitazione disabilitazione dello swap,
+la configurazione di dispositivi raid ed il tuning dei parametri ide.</LI>
+</UL>
+
+e cos&igrave; via.</LI>
+</UL>
+
+Per maggiori informazioni, potete dare un'occhiata a ``lids.planetmirror.com'' 
+oppure cercare le ``capacit&agrave;'' direttamente in google.
+L'utilizzo di ``lcap'' apre diversi nuovi orizzonti. Si potrebbe, per esempio, inserire
+in init.d uno script simile al seguente: 
+<BLOCKQUOTE><CODE>
+<PRE>
+        #!/bin/bash
+
+        lcap CAP_NET_BIND_SERVICE CAP_NET_ADMIN CAP_SYS_MODULE CAP_SYS_PACCT \
+             CAP_SYS_RESOURCE CAP_SETUID CAP_LINUX_IMMUTABLE CAP_NET_RAW CAP_SYS_RAWIO \
+             CAP_SYS_PTRACE CAP_SYS_ADMIN
+</PRE>
+</CODE></BLOCKQUOTE>
+
+in modo da disabilitare la maggior parte delle funzioni che potrebbero risultare
+pericolose. Allo stesso modo, utilizzando il comando ``chattr +i'' si potrebbero
+impostare come immutabili tutti i file coinvolti con il processo di boot, cos&igrave;
+da impedire che il sistema possa essere riavviato senza chiamare ``lcap''.
+Per avere ancora una maggior sicurezza, si potrebbe poi disabilitare il ``reboot''
+del sistema, in modo che da remoto, anche ipotizzando che un attaccante possa
+riuscire a far s&igrave; che lcap non venga chiamato nel prossimo reboot, il
+sistema non possa essere riavviato senza la presenza fisica di una persona
+in sala macchine. In pi&ugrave;, lasciare la capacit&agrave; CAP_NET_ADMIN
+e CAP_NET_RAW impedir&agrave; all'attaccante di installare degli sniffer che 
+impostino l'interfaccia in promiscuous mode ed il cambio delle regole di
+firewalling. 
+<P>Questo stesso script, potrebbe poi essere inserito in ``runlevel 2'',
+creando un link da /etc/rc2.d/S99-lcap a /etc/init.d/script_appena_creato,
+in modo che specificando qualcosa come ``runlevel=3'' dal prompt di lilo
+e di grub sia possibile accedere al sistema senza i limiti imposti da 
+questo comando.</P>
+</LI>
+</UL>
+</P>
+
+<HR>
+<A HREF="iptables4fun-15.html">Avanti</A>
+<A HREF="iptables4fun-13.html">Indietro</A>
+<A HREF="iptables4fun.html#toc5">Indice</A>
+</BODY>
+</HTML>

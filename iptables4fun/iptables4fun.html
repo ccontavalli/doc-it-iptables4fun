@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux</TITLE>
+ <LINK HREF="iptables4fun-1.html" REL=next>
+
+
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-1.html">Avanti</A>
+Indietro
+Indice
+<HR>
+<H1>IPtables for Fun -- Implementare un firewall in linux</H1>
+
+<H2>Carlo Contavalli -- Copyright &copy; 2000-2003</H2>$Revision: 1.12 $ -- $Date: 2003/07/29 3:12:46 $
+<HR>
+<EM>Col passare del tempo, Linux sta diventando una piattaforma
+sempre pi&ugrave; utilizzata nel mondo di internet. Con il maggior numero di utenti e con l'interesse
+suscitato ultimamente, le sue potenzialit&agrave; come server di rete sono cresciute in maniera esponenziale. In particolare, il kernel Linux 2.4.x offre strumenti
+ estremamente potenti e flessibili per la realizzazione di  firewall avanzati. Questo documento si propone come scopo  quello di introdurre gli utenti alla configurazione di linux  come firewall utilizzando tutti gli strumenti pi&ugrave; recenti  messi a disposizione. L'ultima versione di questo documento pu&ograve; essere reperita
+ in vari formati su 
+<A HREF="http://www.commedia.it/ccontavalli/index.html#docs-it">http://www.commedia.it/ccontavalli/index.html#docs-it</A></EM>
+<HR>
+<P>
+<H2><A NAME="toc1">1.</A> <A HREF="iptables4fun-1.html">Copyright e note legali...</A></H2>
+
+<P>
+<H2><A NAME="toc2">2.</A> <A HREF="iptables4fun-2.html">Prima di cominciare</A></H2>
+
+<UL>
+<LI><A NAME="toc2.1">2.1</A> <A HREF="iptables4fun-3.html">Ringraziamenti</A>
+</UL>
+<P>
+<H2><A NAME="toc3">3.</A> <A HREF="iptables4fun-4.html">Nozioni di base sui firewall</A></H2>
+
+<UL>
+<LI><A NAME="toc3.1">3.1</A> <A HREF="iptables4fun-5.html">Tipologie di firewall</A>
+</UL>
+<P>
+<H2><A NAME="toc4">4.</A> <A HREF="iptables4fun-6.html">Preparare il proprio sistema</A></H2>
+
+<UL>
+<LI><A NAME="toc4.1">4.1</A> <A HREF="iptables4fun-7.html">Procurarsi i sorgenti</A>
+<LI><A NAME="toc4.2">4.2</A> <A HREF="iptables4fun-8.html">Patchare e prepararsi a ricompilare...</A>
+<LI><A NAME="toc4.3">4.3</A> <A HREF="iptables4fun-9.html">Preparare il kernel</A>
+<LI><A NAME="toc4.4">4.4</A> <A HREF="iptables4fun-10.html">Compilare iptables</A>
+<LI><A NAME="toc4.5">4.5</A> <A HREF="iptables4fun-11.html">Compilare iproute</A>
+</UL>
+<P>
+<H2><A NAME="toc5">5.</A> <A HREF="iptables4fun-12.html">Hardening the system </A></H2>
+
+<UL>
+<LI><A NAME="toc5.1">5.1</A> <A HREF="iptables4fun-13.html">Ridurre i punti di ingresso</A>
+<LI><A NAME="toc5.2">5.2</A> <A HREF="iptables4fun-14.html">Ripulire il sistema</A>
+<LI><A NAME="toc5.3">5.3</A> <A HREF="iptables4fun-15.html">Rilevare le intrusioni</A>
+</UL>
+<P>
+<H2><A NAME="toc6">6.</A> <A HREF="iptables4fun-16.html">Pericoli -- ovvero, da cosa dovr&agrave; difendervi il firewall</A></H2>
+
+<UL>
+<LI><A NAME="toc6.1">6.1</A> <A HREF="iptables4fun-17.html">Assunzioni errate</A>
+<LI><A NAME="toc6.2">6.2</A> <A HREF="iptables4fun-18.html">Sicurezza degli switch</A>
+</UL>
+<P>
+<H2><A NAME="toc7">7.</A> <A HREF="iptables4fun-19.html">Preparare il kernel ad andare in rete -- overview di /proc </A></H2>
+
+<UL>
+<LI><A NAME="toc7.1">7.1</A> <A HREF="iptables4fun-20.html">Utilizzo dei file in /proc</A>
+<LI><A NAME="toc7.2">7.2</A> <A HREF="iptables4fun-21.html">Alcuni file importanti</A>
+</UL>
+<P>
+<H2><A NAME="toc8">8.</A> <A HREF="iptables4fun-22.html">Filtrare il traffico con iptables</A></H2>
+
+<UL>
+<LI><A NAME="toc8.1">8.1</A> <A HREF="iptables4fun-23.html">Preambolo</A>
+<LI><A NAME="toc8.2">8.2</A> <A HREF="iptables4fun-24.html">Configurare le interfacce</A>
+<LI><A NAME="toc8.3">8.3</A> <A HREF="iptables4fun-25.html">Il comando iptables </A>
+<LI><A NAME="toc8.4">8.4</A> <A HREF="iptables4fun-26.html">Definizione delle policy</A>
+<LI><A NAME="toc8.5">8.5</A> <A HREF="iptables4fun-27.html">La nostra configurazione</A>
+<LI><A NAME="toc8.6">8.6</A> <A HREF="iptables4fun-28.html">Prime catene</A>
+</UL>
+<P>
+<H2><A NAME="toc9">9.</A> <A HREF="iptables4fun-29.html">NAT con iptables</A></H2>
+
+<UL>
+<LI><A NAME="toc9.1">9.1</A> <A HREF="iptables4fun-30.html">Dalla teoria alla pratica</A>
+</UL>
+<P>
+<H2><A NAME="toc10">10.</A> <A HREF="iptables4fun-31.html">Mettere tutto insieme</A></H2>
+
+<UL>
+<LI><A NAME="toc10.1">10.1</A> <A HREF="iptables4fun-32.html">Configurazione dei client</A>
+</UL>
+<P>
+<H2><A NAME="toc11">11.</A> <A HREF="iptables4fun-33.html">Modifiche on the fly - iptables da riga di comando</A></H2>
+
+<UL>
+<LI><A NAME="toc11.1">11.1</A> <A HREF="iptables4fun-34.html">Manipolare le catene</A>
+<LI><A NAME="toc11.2">11.2</A> <A HREF="iptables4fun-35.html">Salvare le modifiche</A>
+</UL>
+<P>
+<H2><A NAME="toc12">12.</A> <A HREF="iptables4fun-36.html">Conclusioni</A></H2>
+
+<HR>
+<A HREF="iptables4fun-1.html">Avanti</A>
+Indietro
+Indice
+</BODY>
+</HTML>

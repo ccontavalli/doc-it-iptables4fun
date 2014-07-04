@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Prima di cominciare</TITLE>
+ <LINK HREF="iptables4fun-3.html" REL=next>
+ <LINK HREF="iptables4fun-1.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc2" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-3.html">Avanti</A>
+<A HREF="iptables4fun-1.html">Indietro</A>
+<A HREF="iptables4fun.html#toc2">Indice</A>
+<HR>
+<H2><A NAME="s2">2.</A> <A HREF="iptables4fun.html#toc2">Prima di cominciare</A></H2>
+
+<P>Questa che state leggendo &egrave; la seconda versione (precisamente, $Revision: 1.12 $) di un 
+documento che scrissi parecchio tempo fa, agli albori del kernel 2.4. 
+Da allora, diverse versioni del kernel sono state rilasciate e nuove funzionalit&agrave;
+sono state lentamente introdotte. Troverete quindi notevoli differenze tra questa
+versione e le versioni precedenti, sia in termini di contenuto tecnico sia in termini
+di linguaggio utilizzato. </P>
+<P>Nelle versioni dalla 1.9 in poi, inoltre, il nome di questo tutorial &egrave; 
+stato cambiato da ``Iptables for Dummies'' a ``Iptables for Fun'', al fine di sottolineare
+l'estraneit&agrave; dello stesso dalla serie ``for dummies'' pubblicata in libreria
+e di evitare problemi che si sarebbero potuti venire a creare in relazione a 
+marchi, trademark o diritti della ``Hungry Minds'', diritti che non intendo in 
+alcun modo violare.</P>
+<P>A questo proposito, vorrei ringraziare alcuni lettori per aver segnalato 
+il problema.</P>
+<P>Spero che questo documento possa esservi utile e sarei felice di
+ricevere commenti, domande o richieste di chiarimenti (nonch&egrave;
+qualche invito a bere una birra in compagnia :-) al mio indirizzo 
+di posta elettronica &lt;ccontavalli at commedia.it&gt;...</P>
+<P>Devo inoltre ringraziare tutti coloro che mi hanno scritto
+aiutandomi a capire quali parti potevano essere di maggiore 
+interesse, quali potevano essere migliorate o segnalando errori
+che spero ora aver corretto, o semplicemente incoraggiandomi 
+nell'andare avanti, contribuendo a migliorare il documento
+che anche voi state leggendo.</P>
+<P>Mi scuso se qualche volta non ho avuto il tempo di 
+rispondere alle vostre email o se non sono sempre stato in grado 
+di esservi di aiuto.</P>
+<P>Purtroppo (pi&ugrave; che altro per me), non riesco a dedicare a 
+questo tutorial il tempo di cui avrebbe bisogno e le nuove sezioni 
+su cui (ormai da mesi) sto lavorando verranno introdotte sempre
+pi&ugrave; lentamente, quasi tanto quanto le correzioni che
+gentilmente mi avente inviato.</P>
+<P>Comunque sia, versioni aggiornate di questo documento potranno 
+essere reperite su 
+<A HREF="http://www.commedia.it/ccontavalli/#docs-it">http://www.commedia.it/ccontavalli/#docs-it</A>.</P>
+<P>Inoltre, nel corso di questo tutorial, quando si parler&agrave; di IP e di protocolli di 
+rete (se non esplicitamente indicato) mi riferir&ograve; alla versione 4 del 
+protocollo IP (aka, IPv4).</P>
+<P>Infine, se non vi interessa nulla di iptables, iproute, del kernel 2.4 e di tutte le funzioni
+avanzate messe a disposizione e volete proteggere semplicemente il vostro computer
+o la vostra piccola lan, potete limitarvi a digitare da riga di comando, come utente ``root'',
+qualcosa di simle a:
+<BLOCKQUOTE><CODE>
+<PRE>
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+</PRE>
+</CODE></BLOCKQUOTE>
+
+ed eventualmente:
+<BLOCKQUOTE><CODE>
+<PRE>
+iptables -A FORWARD -s ip_rete_interna/24 -j ACCEPT
+iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -t nat -A POSTROUTING -s nostrareteinterna/24 -j MASQUERADE
+echo 1 > /proc/sys/net/ipv4/ip_forward
+</PRE>
+</CODE></BLOCKQUOTE>
+
+dove <I>ip_rete_interna</I> pu&ograve;, per esempio, essere sostituito con 10.0.0.0 
+o 192.168.0.0. Con queste ultime regole, consentirete ai computer della vostra 
+rete che avranno impostato come gateway l'indirizzo ip del vostro firewall di
+condividere la connessione ADSL, ISDN o il vostro modem 56k (se siete
+abbastanza coraggiosi) ad esso collegati.</P>
+
+
+<HR>
+<A HREF="iptables4fun-3.html">Avanti</A>
+<A HREF="iptables4fun-1.html">Indietro</A>
+<A HREF="iptables4fun.html#toc2">Indice</A>
+</BODY>
+</HTML>

@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Filtrare il traffico con iptables: Il comando iptables </TITLE>
+ <LINK HREF="iptables4fun-26.html" REL=next>
+ <LINK HREF="iptables4fun-24.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc8" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-26.html">Avanti</A>
+<A HREF="iptables4fun-24.html">Indietro</A>
+<A HREF="iptables4fun.html#toc8">Indice</A>
+<HR>
+<H2>8.3 <A HREF="iptables4fun.html#toc8.3">Il comando iptables </A></H2>
+
+<P>Sicuramente se avete sentito parlare di linux e di firewalling,
+avete anche sentito parlare di ipchains e di ipfwadm. Questi comandi
+consentivano l'impostazione delle regole di firewalling rispettivamente
+nei kernel 2.2 e 2.0. Nei kernel dal 2.4 in poi &egrave; stato introdotto un nuovo 
+comando: iptables, anche se il supporto sia per ipchains che ipfwadm &egrave; rimasto.</P>
+<P>Dovendo parlare di iptables, &egrave; indispensabile una piccola introduzione. Il parente 
+pi&ugrave; stretto di iptables &egrave; sicuramente ipchains. ipchains aveva introdotto il concetto
+di ``catena''. iptables ha ripreso
+il concetto di catena per estenderlo tramite l'introduzione di tabelle.</P>
+<P>Prima di parlare di tabelle per&ograve;, ci conviene chiarire il
+concetto di catena. L'idea di base &egrave; abbastanza semplice: un computer collegato 
+in rete con una o pi&ugrave; interfacce ha a che vedere con tre tipi di pacchetti:
+<UL>
+<LI>Pacchetti destinati al firewall stesso</LI>
+<LI>Pacchetti che devono transitare dal firewall ma destinati a qualcun'altro</LI>
+<LI>Pacchetti originati dal firewall stesso</LI>
+</UL>
+
+Di default ipchains ed iptables mettono quindi a disposizioni rispettivamente 3 catene:
+<UL>
+<LI>La catena di input</LI>
+<LI>La catena di forward</LI>
+<LI>La catena di output</LI>
+</UL>
+
+In un computer normale (o in un server) verrebbero principalmente utilizzate
+le catene di input e di output per filtrare il traffico ricevuto e generato
+dalla macchina presa in considerazione.</P>
+<P>In un firewall invece, i pacchetti transiterebbero da una scheda di rete 
+all'altra, passando quindi attraverso la catena di forward.</P>
+<P>Ogni catena &egrave; poi costituita da un insieme di regole. Ad ogni regola, &egrave; 
+associata un'azione (target). Ogni volta che un pacchetto transita per una catena, 
+tutte le regole vengono controllate in ordine, dalla prima inserita fino all'ultima. 
+Quando una regola risulta applicabile al pacchetto (viene trovato un match) viene applicata 
+al pacchetto l'azione specificata e viene interrotto il processo di ricerca. </P>
+<P>Se non viene trovata una regola applicabile al pacchetto, la sua sorte (l'azione 
+d'applicare) viene scelta in base alla politica (policy) della catena stessa. In pratica,
+la policy indica cosa fare di tutti i pacchetti che non rientrano in nessuna regola.</P>
+<P>Sia ipchains che iptables poi, consentono di creare o rimuovere catene e di specificare
+come azione quella di percorrere un'altra catena.</P>
+<P>Detto cos&igrave; pu&ograve; sembrare tutto molto complesso, ma vedrete che poi nella pratica diventer&agrave; 
+molto pi&ugrave; semplice.</P>
+
+
+<HR>
+<A HREF="iptables4fun-26.html">Avanti</A>
+<A HREF="iptables4fun-24.html">Indietro</A>
+<A HREF="iptables4fun.html#toc8">Indice</A>
+</BODY>
+</HTML>

@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Nozioni di base sui firewall: Tipologie di firewall</TITLE>
+ <LINK HREF="iptables4fun-6.html" REL=next>
+ <LINK HREF="iptables4fun-4.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc3" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-6.html">Avanti</A>
+<A HREF="iptables4fun-4.html">Indietro</A>
+<A HREF="iptables4fun.html#toc3">Indice</A>
+<HR>
+<H2>3.1 <A HREF="iptables4fun.html#toc3.1">Tipologie di firewall</A></H2>
+
+<P>Adesso che abbiamo detto cos'&egrave; e a cosa serve un firewall, &egrave;
+importante parlare un pochettino delle tipologie di firewall che esistono
+sul mercato.</P>
+<P>Questa non vuole essere n&eacute; una trattazione completa n&eacute; ``esatta''
+dal punto di vista tecnico. Lo scopo &egrave; semplicemente quello di introdurre
+il lettore alla terminologia utilizzata normalmente parlando di firewall e di 
+dare una breve panoramica sulle soluzioni disponibile per la configurazione, gestione
+e amministrazione delle reti.</P>
+
+
+<H3>Firewall stateless e firewall statefull</H3>
+
+<P>Prima di tutto, esistono firewall che vengono classificati come ``stateless''
+ed altri che vengono chiamati ``statefull''. La differenza &egrave; abbastanza
+importante: firewall stateless prendono la decisione di bloccare o consentire
+una comunicazione soltanto sulla base delle caratteristiche della comunicazione
+stessa. Al contrario, firewall statefull sono in grado di riconoscere le connessioni
+e le trasmissioni, e, tenendone traccia, sono in grado di prendere decisioni in
+base ad altri parametri. Rifacendomi sempre all'esempio dei finanzieri, un finanziere
+``stateless'' potr&agrave; bloccare o consentire un autoveicolo soltanto in base
+a caratteristiche come il numero di targa, il tipo di veicolo o il numero di passeggeri.
+Al contrario, un finanziere ``statefull'' sar&agrave; in grado di valutare caratteristiche
+come il numero di volte che un veicolo &egrave; passato, se fa parte di una comitiva
+di altri veicoli, piuttosto che se il veicolo dovr&agrave; fare altri viaggi per svolgere
+le sue mansioni. Non &egrave; proprio l'esempio migliore, ma credo che possa rendere 
+bene l'idea. Parlando invece con un linguaggio pi&ugrave; ``tecnico'', un firewall stateless
+conosce solo il concetto di pacchetto singolo, mentre un firewall statefull &egrave; in
+grado di riconoscere le connessioni e perfino alcuni protocolli. Firewall creati con
+il vecchio comando ``ipchains'' vengono considerati stateless, mentre quelli creati con 
+``iptables'' possono essere statefull.</P>
+
+
+<H3>Firewall e protocolli</H3>
+
+<P>I firewall possono essere poi classificati a secondo del ``livello'' (termine non strettamente 
+corretto) a cui lavorano:
+<UL>
+<LI>Quelli che si intendono normalmente per firewall, lavorano solitamente al livello del protocollo
+ip o del protocollo tcp, filtrando il traffico in base al contenuto di queste intestazioni.
+Per esempio, sono in grado di filtrare il traffico in base all'indirizzo ip del mittente di un 
+pacchetto, di destinazione o in base al protocollo utilizzato (dove per protocollo si intende
+la porta tcp o udp). Normalmente, un firewall di questo tipo &egrave; impostato
+come gateway delle reti cui &egrave; collegato.</LI>
+<LI>Firewall ``trasparenti'' lavorano invece ad un livello pi&ugrave; basso
+del protocollo ip, molto vicino all'hardware, per cui vengono normalmente
+inseriti tra una rete e l'altra ma non devono essere impostati come gateway, non
+essendo visibili al livello del protocollo ip   (&egrave; questo il motivo per cui 
+vengono detti trasparenti - non sono visibili,
+e i client non devono essere configurati per usare il gateway).
+<P>In linux, &egrave; possibile ottenere un firewall quasi trasparente 
+utilizzando funzioni come il ``proxy arp'' in combinazione con qualche 
+regola di iptables per modificare i pacchetti, oppure utilizzando il 
+codice di ``bridging'' sempre in combinazione
+con ``iptables''. Attenzione per&ograve; che attualmente il codice di 
+bridging non &egrave; in grado di lavorare in coppia con iptables, a
+meno che non usiate un kernel sperimentale versione dal 2.5.45 in su 
+o alcune patch disponibili su internet.</P>
+</LI>
+<LI>Esistono poi firewall che lavorano a livelli pi&ugrave; alti dell'ip, in 
+grado ad esempio di censurare informazioni fornite con i vari protocolli o
+di consentire l'accesso solo a quegli url raggiungibili tramite link nelle
+pagine visitate.</LI>
+</UL>
+
+Parlando poi di reti e di filtraggio, capita spesso che il discorso cada su proxy server 
+e socks server. </P>
+
+<H3>Proxy server</H3>
+
+<P>Quando utilizzate un proxy server in
+rete (avete presente i parametri di configurazione di Internet Explorer o Mozilla?)
+il vostro browser non si collegher&agrave; direttamente al sito relativo alla pagina da voi richiesta, 
+bens&igrave; si collegher&agrave; al proxy richiedendo tale pagina. Il proxy, in vece dei client,
+si prodigher&agrave; per fornire questa pagina scaricandola da internet o leggendola
+dalla sua cache. In pratica, un proxy server non &egrave; altro che un software che tiene
+una memoria (cache) delle pagine visitate di recente, mettendo tale memoria a disposizione
+di tutti gli utenti collegati ad una rete il cui browser &egrave; configurato per utilizzare
+tale cache. Questo pu&ograve; portare ad un risparmio di banda 
+davvero notevole, soprattutto in quegli ambienti dove molte persone si collegano pi&ugrave; 
+o meno agli stessi siti (e se lo spazio a disposizione per la cache &egrave; molto, 
+sar&agrave; molto probabile che molti siti si trovino in cache).</P>
+<P>Oltre a consentirvi di risparmiare banda (una percentuale spesso rilevante di banda),
+il vantaggio di utilizzare un proxy server &egrave; che vi consentono di creare
+delle regole molto avanzate e di interagire facilmente con gli utenti. </P>
+<P>Con poche righe di configurazione per esempio, installando <I>squid</I> e 
+<I>squidGuard</I> su una macchina linux &egrave; possibile filtrare le pagine 
+web in base al contenuto, applicare delle espressioni regolari agli URL e redirigere 
+gli utenti su particolari pagine in caso le politiche impostate vengano violate 
+(cose estremamente difficili ed inefficienti da fare con un normale firewall). 
+In pi&ugrave;, i delay pools di squid consentono una distribuzione abbastanza equa 
+della banda e con l'appoggio di un semplice firewall, un proxy server pu&ograve; essere reso 
+trasparente (transparent proxy): in questo caso non ci sar&agrave; bisogno di configurare 
+tutti i computer connessi alla rete (client) per utilizzare il proxy e tutte le connessioni verranno
+automaticamente deviate (redirette) sul proxy dal firewall. </P>
+
+<H3>Socks server</H3>
+
+<P>Esiste poi un fratello povero dei proxy server, di cui vi ho accennato prima: il 
+socks server. Questo, invece di fare da cache, &egrave; un software che si occupa
+soltanto di applicare restrizioni imponendo dei limiti o dando privilegi
+in base a regole stabilite dall'amministratore.</P>
+<P>Lo svantaggio principale di un socks server &egrave; che le applicazioni utilizzate
+devono essere fatte apposta per parlare la ``lingua'' di quest'ultimo e che non 
+pu&ograve; essere automaticamente imposto a tutti i computer di una rete (non si pu&ograve;
+impostare un ``transparent socks server'').
+Fortunatamente per&ograve;, la maggior parte delle applicazioni attualmente 
+disponibili sono a conoscenza di questa lingua.</P>
+<P>Un buon motivo per utilizzare un socks server &egrave; che firewall statefull classici 
+sono in grado di riconoscere e gestire soltanto i protocolli standard. 
+Spesso capita quindi che protocolli inventati dai produttori di turno senza 
+rispettare alcuno standard (o modificando gli standard a proprio piacimento) incontrino 
+problemi non indifferenti. Configurando le applicazioni che fanno uso di questi protocolli
+in modo da collegarsi tramite un socks server li si costringer&agrave; a parlare una ``lingua'' 
+standard che consentir&agrave; al socks server di far funzionare anche i protocolli
+pi&ugrave; strani.</P>
+<P>Normalmente quindi, utilizzando un firewall linux, a secondo delle esigenze degli utenti
+della rete che andr&agrave; a proteggere, si potr&agrave; installere e configurare
+anche un socks server per consentire a questi protocolli di funzionare. </P>
+<P>E' importante notare per&ograve; che i ``socks server'' in generale godono di una brutta 
+fama per quanto concerne la sicurezza, non tanto perch&egrave; tutti i socks server
+siano pericolosi, quanto perch&egrave; c'&egrave; stato un periodo storico nel quale
+venivano preinstallati su determinati sistemi operativi senza 
+imporre restrizione alcuna, consentendo ad utenti maliziosi di entrare nella vostra
+rete o di fare cose non proprio piacevoli. </P>
+<P>Installando un socks server &egrave; quindi importante fare attenzione alle configurazioni
+imponendo delle regole il pi&ugrave; possibile restrittive e cercando di evitare software 
+notoriamente bacati. Ricordatevi infine che un socks server costituisce spesso l'unica 
+alternativa per poter utilizzare alcuni programmi in rete, a meno di sviluppare un apposito 
+modulo per il kernel.</P>
+
+
+
+<HR>
+<A HREF="iptables4fun-6.html">Avanti</A>
+<A HREF="iptables4fun-4.html">Indietro</A>
+<A HREF="iptables4fun.html#toc3">Indice</A>
+</BODY>
+</HTML>

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Preparare il proprio sistema: Compilare iproute</TITLE>
+ <LINK HREF="iptables4fun-12.html" REL=next>
+ <LINK HREF="iptables4fun-10.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc4" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-12.html">Avanti</A>
+<A HREF="iptables4fun-10.html">Indietro</A>
+<A HREF="iptables4fun.html#toc4">Indice</A>
+<HR>
+<H2>4.5 <A HREF="iptables4fun.html#toc4.5">Compilare iproute</A></H2>
+
+<P>iproute normalmente &egrave; un pochettino pi&ugrave; problematico. Questo soprattutto perch&eacute; ha bisogno che
+gli headers file del kernel installato sul sistema siano relativi al kernel che avete appena
+patchato e ricompilato. Se avete gi&agrave; provato a fare questa procedura, avrete senz'altro visto 
+diversi errori relativi a dei tipi non definiti o errori in pak_sched.h (a meno che non
+abbiate applicato alcuna patch). Ma andiamo per gradi:
+<UL>
+<LI>Andate in /usr/include e fate sparire momentaneamente la directory ``linux'' (ad esempio, con
+un ``mv ./linux &nbsp;/''). Attenzione! Cos&iacute; facendo potreste creare problemi ad eventuali
+altri utenti del sistema, e non &egrave; certo il metodo pi&ugrave; corretto!</LI>
+<LI>Date un ``ln -s /path_assoluto_sorgenti_nuovo_kernel/include/linux ./linux''</LI>
+</UL>
+
+In questo modo avete messo a posto gli headers file per poter ricompilare iproute (esistono centinaia
+di modi pi&ugrave; furbi per farlo, ma credo che questo sia uno dei pi&ugrave; semplici).</P>
+<P>Entrate quindi nella directory di iproute e provate a compilarlo seguendo le istruzioni fornite (dovrebbe 
+bastare un semplice ``make install''). Non vi spaventate se non va liscio la prima
+volta: alcune versioni di iproute citano in uno dei file .c una costante che non &egrave; pi&ugrave; definita negli 
+headers di linux.</P>
+<P>Per risolvere il problema, baster&agrave; semplicemente aprire con un editor il file nella directory
+lib chiamato ll_proto.c (iproute/lib/ll_proto.c) e commentare via la riga (sul mio sistema la 36)  
+<BLOCKQUOTE><CODE>
+<PRE>
+__PF(ECHO,echo) 
+</PRE>
+</CODE></BLOCKQUOTE>
+
+sostituendola con la riga 
+<BLOCKQUOTE><CODE>
+<PRE>
+/* __PF(ECHO,echo) */
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Non vi preoccupate, non &egrave; una mia idea ed &egrave; un problema abbastanza documentato dove &egrave; prassi
+normale per risolverlo commentare via la riga indicata (tra l'altro, al momento del rilascio
+di questo documento, potrebbe essere un problema gi&aacute; risolto).</P>
+<P> Riprovate quindi a compilare... 
+se ancora non vi va bene, controllate di aver sistemato correttamente
+/usr/include/linux e di aver applicato a iproute tutte le patch che avete applicato 
+al vostro kernel e viceversa.</P>
+<P>Se ancora non riuscite a compilare e non avete delle buone conoscenze del C, vi consiglio di riprovare a ricompilare
+iproute senza nessuna patch, poi con una, poi con due... finch&eacute; non smette di funzionare. Se gi&agrave; dall'inizio
+non si ricompila, probabilmente vi manca qualche tool necessario per la compilazione o avete qualche
+header un po' particolare. Provate a chiedere sulle mailing-lists delle vostre distribuzioni.</P>
+<P>Se invece non vi ha dato problemi, ed &egrave;
+andato tutto liscio al primo colpo, probabilmente siete stati fortunati... non vi preoccupate :-)...</P>
+
+
+<H3>In Debian</H3>
+
+<P>La procedura &egrave; la stessa di iptables: entrate nella directory di iproute e date
+<BLOCKQUOTE><CODE>
+<PRE>
+        # debuild 
+        # cd ..; dpkg -i *.deb  
+</PRE>
+</CODE></BLOCKQUOTE>
+
+oppure
+<BLOCKQUOTE><CODE>
+<PRE>
+        # dpkg-buildpackage 
+        # cd ..; dpkg -i *.deb  
+</PRE>
+</CODE></BLOCKQUOTE>
+
+per fabbricare i .deb contenenti la vostra versione personalizzata di iproute.</P>
+<P>Se la procedura si blocca durante la compilazione, leggete le raccomandazioni nella
+sezione precedente, dove si descrive la procedura di installazione manuale, e verificate
+di aver gi&agrave; installato il nuovo kernel con dpkg.</P>
+
+<HR>
+<A HREF="iptables4fun-12.html">Avanti</A>
+<A HREF="iptables4fun-10.html">Indietro</A>
+<A HREF="iptables4fun.html#toc4">Indice</A>
+</BODY>
+</HTML>

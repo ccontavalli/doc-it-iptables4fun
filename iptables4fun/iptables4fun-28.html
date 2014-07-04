@@ -1,0 +1,559 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Filtrare il traffico con iptables: Prime catene</TITLE>
+ <LINK HREF="iptables4fun-29.html" REL=next>
+ <LINK HREF="iptables4fun-27.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc8" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-29.html">Avanti</A>
+<A HREF="iptables4fun-27.html">Indietro</A>
+<A HREF="iptables4fun.html#toc8">Indice</A>
+<HR>
+<H2>8.6 <A HREF="iptables4fun.html#toc8.6">Prime catene</A></H2>
+
+<P>Ok, due sezioni fa abbiamo detto al kernel di buttare via tutto quanto pu&ograve; avere a che fare
+col nostro computer. Per andare avanti nella nostra configurazione, dobbiamo quindi
+indicare cosa invece lasciare passare. Questo si fa aggiungendo delle regole. Una
+soluzione potrebbe essere quella di aggiungere tutte le regole relative al traffico
+che vogliamo lasciare passare nelle 3 catene di base. Funzionerebbe, ma vi posso garantire 
+che sarebbe molto facile commettere degli errori e vi posso garantire che altrettanto 
+facilmente diventerebbero cos&igrave; tante da non poter essere pi&ugrave; gestibili. </P>
+<P>Uno degli approcci pi&ugrave; semplici nella gestione delle regole di firewalling &egrave; quindi quello
+di dividere il traffico in ``flussi'' di dati dopodich&egrave; considerare indipendentemente ogni 
+singolo flusso, evitando cos&igrave; di avere tutte le regole insieme e formalizzandosi in modo da 
+evitare gli errori pi&ugrave; comuni.</P>
+<P>Analizzando il nostro esempio, potremmo quindi dividere il nostro traffico in 6 grandi
+flussi:
+<UL>
+<LI>tutto ci&ograve; che dalla lan va alla dmz</LI>
+<LI>tutto ci&ograve; che dalla lan va su internet</LI>
+<LI>tutto ci&ograve; che dalla dmz va su internet</LI>
+<LI>tutto ci&ograve; che dalla dmz va sulla lan</LI>
+<LI>tutto ci&ograve; che da internet va sulla nostra dmz</LI>
+<LI>tutto ci&ograve; che da internet vuole andare sulla nostra lan</LI>
+</UL>
+
+Possiamo poi, per esempio, creare per ogni flusso una catena e ad ogni
+catena associare un suo insieme di regole indipendenti da quello di 
+tutte le altre catene.</P>
+<P>Ma andiamo per gradi: iniziamo a creare delle nuove catene. Per 
+fare questo dobbiamo eseguire iptables seguito da un ``-N'' e da un
+nome per la catena:
+<BLOCKQUOTE><CODE>
+<PRE>
+16: iptables -N landmz       #dalla scheda di rete eth0 alla scheda di rete eth1
+17: iptables -N laninet      #dalla scheda di rete eth0 alla scheda di rete eth2
+18: iptables -N dmzinet      #dalla scheda di rete eth1 alla scheda di rete eth2
+19: iptables -N dmzlan       #dalla scheda di rete eth1 alla scheda di rete eth0
+20: iptables -N inetdmz      #dalla scheda di rete eth2 alla scheda di rete eth1
+21: iptables -N inetlan      #dalla scheda di rete eth2 alla scheda di rete eth0
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Per il kernel, per&ograve;, il nome che abbiamo dato ed il commento non hanno alcun
+significato. Dobbiamo quindi trovare un modo per indicare quali catene devono essere
+percorse in quali situazioni. Per fare questo, possiamo specificare 6 semplici
+regole. Trattandosi di regole per traffico che non &egrave; n&eacute; originato
+n&eacute; destinato al firewall, dovremo inserirle nella catena di FORWARD.
+Per esempio, potremmo dare dei comandi come:
+<BLOCKQUOTE><CODE>
+<PRE>
+23: iptables -A FORWARD -i eth0 -o eth1 -j landmz
+24: iptables -A FORWARD -i eth0 -o eth2 -j laninet
+25: iptables -A FORWARD -i eth1 -o eth2 -j dmzinet
+26: iptables -A FORWARD -i eth1 -o eth0 -j dmzlan
+27: iptables -A FORWARD -i eth2 -o eth1 -j inetdmz
+28: iptables -A FORWARD -i eth2 -o eth0 -j inetlan
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Il significato di queste righe &egrave; molto semplice: aggiungi (-A, append) alla
+catena FORWARD, una regola per cui se un pacchetto proviene dalla scheda
+di rete eth0 (-i) ed &egrave; destinato ad uscire dalla scheda eth1 (-o), la sua
+sorte deve essere decisa (-j) dalla catena landmz e cos&igrave; via. In pratica,
+abbiamo diviso tutti i pacchetti in transito nella catena di forward in
+6 categorie, dove ogni categoria ha associata una catena e quindi una 
+serie di regole. Riassumendo:  
+<UL>
+<LI><I>-N</I> crea una nuova catena</LI>
+<LI><I>-A</I> aggiunge una regola ad una catena</LI>
+<LI><I>-i</I> consente, in una regola, di discriminare i pacchetti in
+base all'interfaccia fisica da cui sono entrati</LI>
+<LI><I>-o</I> in base all'interfaccia fisica da cui usciranno (scelta
+in base alle tabelle di routing da noi impostate)</LI>
+<LI><I>-j</I> di mandare i pacchetti ad un'altra catena</LI>
+</UL>
+
+Abbiamo visto quindi come una regola pu&ograve; identificare dei pacchetti in 
+base alle schede di rete coinvolte. E' per&ograve; possibile utilizzare molti
+altri criteri, per esempio:
+<UL>
+<LI>il protocollo (-p)</LI>
+<LI>l'indirizzo ip sorgente (-s)</LI>
+<LI>l'indirizzo ip destinazione (-d)</LI>
+<LI>se si tratta di un frammento (-f)</LI>
+<LI>o se non lo &egrave; (! -f)</LI>
+</UL>
+
+Dove ogni protocollo pu&ograve; aggiungere dei criteri di classificazione. Per esempio,
+se specifichiamo ``-p tcp'' per indicare il protocollo tcp, possiamo poi dividere
+i pacchetti in base anche 
+<UL>
+<LI>alla porta sorgente (--sport)</LI>
+<LI>alla porta destinazione (--dport)</LI>
+<LI>ai flag del tcp (--tcp-flags SYN, ACK, FIN...)</LI>
+<LI>alle opzioni (--tcp-option)</LI>
+</UL>
+
+Anche in questo caso, oltre alle estensioni fornite dai protocolli, &egrave; possibile
+utilizzare delle estensioni fornite da moduli.</P>
+<P>A questo punto per&ograve;, vi sar&agrave; venuto spontaneo chiedervi perch&eacute; effettuare una
+prima classificazione in base all'hardware e non, ad esempio, in base all'indirizzo
+ip sorgente o all'indirizzo ip destinazione. Ancora una volta, la risposta &egrave; molto semplice:
+il contenuto di un pacchetto si pu&ograve; falsificare. Il fatto che arrivi su un'interfaccia
+piuttosto che un'altra, no. Utilizzando almeno per le prime regole le interfacce
+di input e quelle di output, avremo quindi la certezza che i pacchetti saranno valutati
+dalle regole contenute nella catena corretta e che nessuno potr&agrave; imbrogliarci utilizzando
+ip fasulli (ancora, cosa succederebbe se basassimo le nostre regole solo sugli indirizzi ip
+e qualcuno ci mandasse dei pacchetti provenienti da 127.0.0.1 con l'rp_filter disabilitato?).</P>
+
+
+
+<H3>Dalla LAN alla DMZ</H3>
+
+<P>Ricordandoci della configurazione della nostra ipotetica rete, abbiamo deciso
+che dalla nostra lan vogliamo che tutte le richieste per
+pagine web vengano deviate sul nostro server proxy (transparent proxy) in maniera trasparente,
+che i nostri utenti non controllino altre caselle di posta elettronica
+se non quelle da noi fornite, che possano collegarsi al nostro server
+web direttamente e che siano in grado di scaricare file con ftp direttamente
+da internet. Dall'esterno, vogliamo soltanto rendere accessibile
+il nostro dns, il server di posta elettronica, il nostro server web
+ed il server ftp. Ma lavoriamo anche qua per flussi, in modo da semplificare
+un po' le cose.</P>
+<P>Iniziamo allora a creare le regole per la nostra
+lan, lasciando indietro (per ora) ci&ograve; che riguarda il ``deviare''. Dalla lan
+alla dmz, vogliamo quindi consentire:</P>
+<P>
+<UL>
+<LI> le connessioni al nostro server web (www)</LI>
+<LI> le connessioni per spedire la posta (smtp)</LI>
+<LI> le connessioni per ricevere la posta (pop3)</LI>
+<LI> le connessioni verso il server proxy (webcache)</LI>
+<LI> nonch&eacute; le connessioni necessarie per utilizzare il nostro dns
+(domain)</LI>
+</UL>
+
+Aggiungiamo quindi le regole corrette, esattamente come indicato
+qua sopra:
+<BLOCKQUOTE><CODE>
+<PRE>
+30: iptables -A landmz -s ! 192.168.200.0/24 -j DROP
+31: iptables -A landmz -p tcp -d nostro.server.web --dport www -j ACCEPT
+32: iptables -A landmz -p tcp -d nostro.server.smtp --dport smtp -j ACCEPT
+33: iptables -A landmz -p tcp -d nostro.server.pop3 --dport pop3 -j ACCEPT
+34: iptables -A landmz -p tcp -d nostro.server.proxy --dport webcache -j ACCEPT
+35: iptables -A landmz -p tcp -d nostro.dns --dport domain -j ACCEPT
+36: iptables -A landmz -p udp -d nostro.dns --dport domain -j ACCEPT
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Prima di tutto, qua dentro sarebbe molto meglio indicare direttamente
+degli indirizzi ip al posto dei nomi dei computer. Come abbiamo gi&agrave; detto,
+infatti, il protocollo dei DNS deve essere considerato insicuro. Se proprio
+volessimo usare i nomi dei computer, potremmo utilizzare il vecchio file
+degli hosts, in /etc/hosts, dove ogni linea &egrave; formata dall'indirizzo
+ip di un computer seguito dal suo nome (e separati da spazi).</P>
+<P>Come potete vedere, questa volta le regole le ``appendiamo'' (-A) non pi&ugrave; alla
+catena di FORWARD bens&igrave; alla catena landmz, trattandosi di regole
+che andranno a discriminare il traffico tra la nostra lan e la nostra
+dmz.</P>
+<P>Ora, la prima regola indica che non vogliamo
+che passi niente che non abbia un indirizzo ip proveniente dalla
+nostra rete interna. Questa regola eviter&agrave; quindi che qualcuno
+dei nostri utenti possa fare spoofing verso la nostra dmz o che comunque
+tenti di imbrogliarci con dei giochi strani sull'indirizzo ip. E' una
+regola un po' superflua, avendo gi&agrave; abilitato la protezione del
+kernel, ma a volte &egrave; meglio aggiungere qualche regola in pi&ugrave;
+piuttosto che avere qualche regola in meno (e poi, siete sicuri che nelle
+prossime versioni del kernel il filtro sar&agrave; ancora disponibile o
+che si comporter&agrave; sempre nello stesso modo?).</P>
+<P>Le altre sono ancora regole molto semplici. Le uniche novit&agrave; introdotte 
+rispetto prima sono la negazione (il !), che indica che perch&eacute; una regola venga 
+applicata una certa condizione <B>non</B> deve essere soddisfatta, ed il fatto 
+che finalmente potete vedere diversi criteri messi in pratica. -s, specifica 
+un ip sorgente e pu&ograve; essere seguito da un indirizzo ip o da un indirizzo di rete (indicato 
+come x.x.x.x/y) o dal nome di un host. -p pu&ograve; essere seguito dal nome o dal numero 
+di un protocollo (file /etc/protocols conserva le associazioni). 
+-d, ancora, indica la destinazione di un pacchettino e pu&ograve; essere 
+seguito sempre da un indirizzo ip, da un nome di host o da un indirizzo di rete (con lo stesso 
+formato indicato prima). --dport, invece, indica una porta di destinazione e pu&ograve; essere seguito 
+da un numero o dal nome di una porta (il file /etc/services conserva le associazioni). 
+In tutti i casi, &egrave; possibile usare la negazione 
+dopo l'indicazione del criterio.</P>
+<P> Infine, ACCEPT dice ad iptables di accettare tali 
+pacchetti nel caso in cui la regola risulti applicabile. Per configurare un firewall, &egrave; 
+necessaria una buona conoscenza dei vari
+protocolli di rete: l'ultima riga &egrave; stata aggiunta in quanto il protocollo
+per la comunicazione con i dns utilizza il pi&ugrave; delle volte connessioni
+udp, mentre utilizza connessioni tcp solo in condizioni particolari. Senza questa
+regola, il dns avrebbe funzionato sempre tranne qualche volta, e sarebbe stato estremamente
+difficile trovare il problema (se mai ce ne fossimo resi conto).</P>
+<P>Per chi di voi si fosse invece chiesto come si fa a specificare una rete o
+che senso ha il /24, basti sapere che si tratta di un sistema estremamente
+comodo per indicare le netmask. Per esempio, una netmask 255.255.255.0 indica che se i
+primi 24 bit di due indirizzi ip sono uguali, allora i due si
+trovano sulla stessa rete (255.255.255.0 scritto in notazione binaria sarebbe
+11111111.11111111.11111111.00000000, con 24 uno). 255.255.255.0 &egrave; quindi equivalente a /24 (ogni
+ottetto - 255 - sono 8 bit).</P>
+<P>Visto per&ograve; che si tratta delle prime regole ``serie'' della nostra trattazione,
+vediamo comunque di descriverle a parole, un po' come abbiamo fatto prima:
+<UL>
+<LI>30: Butta via ogni pacchetto in transito nella catena landmz che <B>non</B> venga
+da un indirizzo ip facente parte la nostra lan. </LI>
+<LI>31: Accetta ogni pacchetto tcp in transito dalla catena landmz destinato alla porta 80 (www) del nostro.server.web</LI>
+<LI>32: Accetta ogni pacchetto tcp in transito dalla catena landmz destinato alla porta 25 (smtp) del nostro.server.smtp</LI>
+<LI>33: Accetta ogni pacchetto tcp in transito dalla catena landmz destinato alla porta 110 (pop3) del nostro.server.pop3</LI>
+<LI>34: Accetta ogni pacchetto tcp in transito dalla catena landmz destinato alla porta 8080 (webcache) del nostro.server.proxy</LI>
+<LI>35: Accetta ogni pacchetto udp in transito dalla catena landmz destinato alla porta 53 (dns) del nostro.dns</LI>
+<LI>36: Accetta ogni pacchetto tcp in transito dalla catena landmz destinato alla porta 53 (dns) del nostro.dns</LI>
+<LI>(Butta via tutto il resto, come definito dalla policy)</LI>
+</UL>
+
+Ad alcuni di voi sar&agrave; venuto spontaneo chiedersi come mai &egrave; stata messa come
+prima regola un ``butta via'' con una negazione, anzich&egrave; una pi&ugrave; semplice accetta 
+(qualcosa del tipo: accetta ogni pacchetto in transito nella
+catena landmz che viene da un indirizzo ip facente parte della nostra lan). 
+Il problema &egrave; che il controllo delle regole si ferma alla prima regola soddisfatta. Se fosse stata quindi
+un'accept, la regola sarebbe stata soddisfatta per ogni pacchetto proveniente dalla lan, e la scansione
+delle regole non sarebbe andata avanti a quelle successive, vanificando buona parte del nostro lavoro. 
+Un'altra possibilit&agrave; sarebbe stata quella di omettere la prima regola e di specificare ogni 
+volta esplicitamente l'indirizzo ip, aggiungendo alle righe dalla 31 alla 36 qualcosa come ``-s 192.168.200.0/24''.
+Siccome per&ograve; sono una persona molto pigra, ho scelto il metodo pi&ugrave; veloce da scrivere.</P>
+<P>L'ultima regola indicata tra parentesi, poi, non &egrave; stata da noi scritta: &egrave; implicitamente aggiunta
+dalla policy (DROP) che abbiamo deciso di utilizzare.</P>
+<P>L'esperienza per&ograve; mi insegna che a questo punto potrebbe essere conveniente inserire come regola 38 qualcosa
+di simile a:
+<BLOCKQUOTE><CODE>
+<PRE>
+38: iptables -A landmz -p tcp -j REJECT --reject-with tcp-reset
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Questo ha a che vedere con i meandri del tcp. Ma vediamo di spiegarla in poche parole: quando
+avviene una connessione TCP/IP, ha luogo il solito ``three way handshake''. In pratica, per
+avere la certezza che i pacchetti arrivino a destinazione, il computer A manda un messaggio
+del tipo ``questo &egrave; il mio numero, e se ci sei, mandami il tuo'', dopodich&egrave; il computer B 
+risponde con un messaggio del
+tipo ``ho ricevuto il tuo numero, questo &egrave; il mio'', infine il computer A risponde dicendo ``ho ricevuto
+il tuo numero'' e la comunicazione ha inizio. Normalmente per&ograve;, rispettando il protocollo TCP/IP, 
+se il computer A dovesse tentare di collegarsi ad una porta chiusa (ad un servizio non disponibile) su
+B, allora B dovrebbe rispondere con ``la porta &egrave; chiusa''.</P>
+<P> Ma vediamo cosa succede nel nostro caso:
+<UL>
+<LI>Tra <I>A</I> e <I>B</I> c'&egrave; il nostro firewall <I>F</I>.</LI>
+<LI><I>A</I> manda il messaggio a <I>B</I> ad una porta non consentita.</LI>
+<LI>senza regola 38, <I>F</I> riceve il messaggio e lo butta via.</LI>
+<LI><I>A</I> rimane in attesa di una risposta per parecchi secondi e ci riprova, sempre con
+lo stesso risultato.</LI>
+<LI>A questo punto, <I>A</I> &egrave; rimasto in attesa di un tempo valutabile in minuti, mentre <I>B</I>
+&egrave; rimasto inconsapevole di tutto. </LI>
+</UL>
+
+Bene, la regola 38 dice che per ogni connessione tcp arrivata in fondo alla catena (essendo stata aggiunta
+per ultima), invece di essere buttato via il pacchetto, deve essere utilizzata l'estensione (modulo
+esterno) REJECT per mandare un ``tcp-reset'', il messaggio che indica il fatto che la porta &egrave; chiusa.</P>
+<P>Vediamo per&ograve; che il target REJECT &egrave; stato specificato semplicemente con un -j, come per tutti gli 
+altri target. Quando si parla di target, infatti, non c'&egrave; alcuna differenza tra ``estensioni'' esterne
+e target forniti direttamente da iptables, se non la pagina di manuale.</P>
+<P>Alcuni di voi si potranno chiedere a questo punto ``ma che diavolo, cosa mi interessa se l'altro tentando di accedere
+ad una porta non consentita rimane in attesa?? Cos&igrave; impara per la prossima volta...''. 
+Beh, ci sono almeno tre buoni motivi per non lasciarlo in attesa:
+<UL>
+<LI>A volte, quando vi collegate per esempio ad un server di posta elettronica, alcuni sistemi
+fanno quello che viene definito un ``ident lookup'', cercano cio&egrave; di capire chi siete 
+collegandosi alla porta 113 della vostra macchina, dove teoricamente ci dovrebbe essere un
+demone in ascolto che fornisce questo tipo di informazioni.
+<P>Il problema &egrave; che questi sistemi non vi fanno accedere al servizio fino a quando
+non scoprono la vostra identit&agrave; o non appurano che il vostro sistema non offre questo
+servizio (rispondendo che la porta &egrave; chiusa). In entrambi i casi, il sistema remoto
+rimane in attesa di una risposta, e se questa non arriva, pu&ograve; ipotizzare due cose:
+<OL>
+<LI>che la richiesta sia andata persa</LI>
+<LI>che il vostro computer sia improvvisamente morto</LI>
+</OL>
+
+Proveranno quindi a rimandare il pacchetto per diverse volte prima di arrendersi e farvi entrare
+(ma come, il vostro computer non era morto? Non ha risposto quando abbiamo tentato di contattarlo...), 
+introducendo spesso dei delay valutabili nell'ordine 
+delle decine di secondi o addirittura dei minuti.</P>
+<P>L'esempio pi&ugrave; classico &egrave; questo, ma altri protocolli usano un approccio simile, 
+e vi posso garantire che una regola come la 38 pu&ograve; evitarvi diversi delay nell'utilizzo della rete 
+altrimenti difficilmente spiegabili.</P>
+</LI>
+<LI>Molti ``scanner'' sono tratti in inganno da questa regola che fa credere loro che la porta sia
+effettivamente chiusa rendendo quindi pi&ugrave; difficile l'identificazione del firewall (vi siete 
+mai chiesti come nmap faccia ad indicare che una porta &egrave; ``filtered'' piuttosto che
+``closed''?). Attenzione per&ograve; che
+scanner pi&ugrave; intelligenti potrebbero rilevare le differenze di TTL (il firewall si trova un passo
+prima del vero client), rendendo vano tale tentativo (se volete divertirvi, date un'occhiata al 
+target TTL, che vi consente di evitare persino quest'effetto).</LI>
+</UL>
+
+Questa regola la vedrete apparire molto spesso nelle catene seguenti, sempre per lo stesso motivo...
+Dovremmo quindi aver finito con il traffico dalla LAN alla nostra DMZ.</P>
+
+
+<H3>Dalla DMZ alla LAN</H3>
+
+<P>Ok, qua (a dirsi) le cose sono molto pi&ugrave; semplici: dobbiamo consentire
+soltanto quei pacchettini in risposta alle richieste partite dalla LAN (i
+server non si devono connettere di loro spontanea volont&agrave; ai nostri client -- teoricamente,
+nessuno dovrebbe usarli).</P>
+<P>Fare questo in ipchains era una cosa abbastanza complessa: 
+bisognava specificare delle regole per consentire ogni tipo di pacchetto
+che ci sarebbe potuto tornare in risposta (giocando con l'opzione --syn, che 
+seleziona i pacchetti che stabiliscono nuove connessioni) e si doveva quindi avere una buona
+conoscenza (se non ottima) dei vari protocolli. iptables facilita molto le cose
+tramite l'introduzione di ``moduli per il tracciamento delle connessioni''
+(conntrack -- uno dei molti vantaggi dei firewall statefull rispetto quelli stateless).</P>
+<P>Vediamo quindi una delle soluzioni che potremmo adottare:
+<BLOCKQUOTE><CODE>
+<PRE>
+40: iptables -A dmzlan -s ! 123.45.67.9/29 -j DROP
+41: iptables -A dmzlan -m state --state ESTABLISHED,RELATED -j ACCEPT
+42: iptables -A dmzlan -p tcp -j REJECT --reject-with tcp-reset
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Bene, il primo comando &egrave; la solita regola per evitare lo spoofing.
+Il secondo invece, &egrave; diverso da ogni altro comando finora incontrato:
+-m chiede ad iptables di caricare un modulo esterno, in questo caso il modulo
+state (si ricorda lo stato delle connessioni), per il tracciamento delle connessioni. 
+L'opzione --state relativa
+al modulo state &egrave; quello che ci permette di identificare i pacchetti: in pratica,
+la regola ha come significato quello di consentire tutti i pacchetti
+facenti parte connessioni gi&agrave; stabilite (ESTABLISHED, e se sono gi&agrave; stabilite vuol dire
+che sono state consentite) e tutte quelle connessioni relative a connessioni gi&agrave; esistenti (RELATED).</P>
+<P>In questo caso, la parolina magica &egrave; proprio RELATED. Ci consente cio&egrave; di scaricare
+sul modulo state la responsabilit&agrave; di identificare i pacchettini che non soltanto
+sono risposte a pacchetti gi&agrave; inviati, ma anche quelli che fanno parte dello stesso protocollo.</P>
+<P>Vediamo per&ograve; qualche esempio:
+<UL>
+<LI>Quando volete scaricare un file tramite ftp il vostro browser (o qualsivoglia programma stiate
+utilizzando) apre prima una connessione di controllo sul server remoto, sulla classica
+porta 21. Dopodich&eacute; si mette d'accordo con il computer remoto su una porta da utilizzare
+per creare una nuova connessione per l'invio dei dati. Ma proprio qui sorge il problema:
+per passare dal nostro firewall (che ha una politica di DROP), questa connessione dovrebbe
+essere esplicitamente consentita a priori con una regola che termina con un -j ACCEPT. 
+A priori, per&ograve;, non possiamo creare questa regola in quanto non sappiamo le porte che verranno utilizzate
+(possono essere liberamente negoziate sia dal client che dal server). La soluzione normalmente adottata
+prima dell'introduzione dei moduli di tracciamento
+era molto semplice: consentire tutte le connessioni salvo quelle a porte problematiche. Il modulo
+state, invece, ci viene in aiuto aggiungendo e rimuovendo regole dinamicamente secondo quanto necessario.</LI>
+<LI>Il protocollo ip lavora in collaborazione con il  
+protocollo ICMP che viene utilizzato per la segnalazione e la gestione degli errori. 
+Ebbene, senza utilizzare il modulo state con l'opzione
+RELATED, avremmo dovuto impostare per ogni connessione consentita una regola del tipo ``consenti tutti i messaggi
+di errore relativi a questa connessione'', oppure consentire l'entrata di tutti i pacchetti ICMP di 
+alcuni tipi. Bene, il modulo state si prende in carico anche di questo aggiungendo e togliendo regole
+dinamicamente ed in maniera trasparente.</LI>
+</UL>
+
+La differenza &egrave; quindi questa: ESTABLISHED, fa passare tutti i pacchetti che fanno parte
+di una connessione gi&agrave; stabilita, mentre RELATED fa passare tutti i pacchetti di controllo (errori,
+piuttosto che...) o connessioni relative alle connessioni conosciute.</P>
+<P>Se state configurando un firewall, per&ograve;, e la vostra preoccupazione principale &egrave; la sicurezza, vi
+sar&agrave; sorta spontanea una domanda: ``e se qualcuno imbrogliasse il modulo di state, facendo aprire
+connessioni non volute?''. Bene, in passato qualche problema di questo tipo &egrave; stato sollevato,
+ma il codice del netfilter dovrebbe essere attualmente abbastanza maturo per evitare questo tipo di
+problemi. </P>
+<P> Vi consiglio per&ograve; di seguire le mailing list dedicate, per essere eventualmente
+prontamente avvisati di possibili problemi, e di leggere qualche documento in pi&ugrave; sul funzionamento
+del protocollo ftp.</P>
+<P>Attenzione per&ograve; che perch&eacute; le regole sopra elencate funzionino, potrebbe essere necessario caricare
+dei moduli nel kernel, con comandi del tipo ``modprobe ip_conntrack'',
+``modprobe ip_conntrack_ftp'', ``modprobe ip_conntrack_altri_moduli_di_protocolli_che_volete_utilizzare''.</P>
+<P>Per quanto riguarda le prestazioni, il modulo state utilizza un po' pi&ugrave; di risorse rispetto 
+alle regole manuali, ma comunque nulla di rilevante se rapportato ai vantaggi che offre (alcune cose,
+non &egrave; proprio possibile farle con firewall stateless, a meno di non aprire migliaia di porte).</P>
+<P>Un'altra cosa da dire &egrave; che prima, nella definizione della catena dalla LAN alla DMZ, ho volutamente
+dimenticato la regola 37:
+<BLOCKQUOTE><CODE>
+<PRE>
+37: iptables -A landmz -m state ESTABLISHED,RELATED -j ACCEPT
+</PRE>
+</CODE></BLOCKQUOTE>
+
+che sarebbe stata troppo prematura da discutere. In pratica, anche dalla 
+lan alla dmz &egrave; importante far passare tutti quei dati relativi a connessioni
+gi&agrave; stabilite o comunque i messaggi di errore.
+Probabilmente non molto importante per reti di piccole dimensioni,
+ma rilevante in reti pi&ugrave; grosse o con regole pi&ugrave; complicate. Anche questa regola la
+vedrete apparire molto spesso.</P>
+
+<H3>Dalla LAN ad Internet</H3>
+
+<P>Dalla nostra lan ad internet vogliamo invece essenzialmente
+che passi traffico ftp (che non pu&ograve; essere deviato sul proxy), in modo che gli utenti 
+possano scaricare
+direttamente il loro materiale. Per fare questo, basta aggiungere
+le regole:
+<BLOCKQUOTE><CODE>
+<PRE>
+44: iptables -A laninet -s ! 192.168.200.0/24 -j DROP
+45: iptables -A laninet -p tcp --dport ftp -j ACCEPT
+48: iptables -A laninet -m state ESTABLISHED,RELATED -j ACCEPT
+49: iptables -A laninet -p tcp -j REJECT --reject-with tcp-reset
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Dove per&ograve; non c'&egrave; nulla di nuovo di cui parlare...</P>
+
+<H3>Da Internet alla LAN</H3>
+
+<P>Infine, per terminare con la nostra lan:
+<BLOCKQUOTE><CODE>
+<PRE>
+50: iptables -A inetlan -s 192.168.200.0/24 -j DROP
+51: iptables -A inetlan -s 123.15.67.9/29 -j DROP
+52: iptables -A inetlan -m state --state ESTABLISHED,RELATED -j ACCEPT
+53: iptables -A inetlan -p tcp -j REJECT --reject-with tcp-reset
+</PRE>
+</CODE></BLOCKQUOTE>
+
+In questo caso, le prime due regole bloccano tutti quei pacchetti
+che hanno come mittente l'indirizzo di una delle nostre due reti.</P>
+<P>La terza regola, invece, consente a tutte le connessioni create
+dall'interno di poter ricevere una risposta, senza dover scrivere
+troppe regole.</P>
+<P>All'epoca di ipchains invece, non c'era un modo di ``tenere traccia'' 
+delle connessioni ed era quindi necessario aprire molte pi&ugrave; porte per consentire a
+ftp di funzionare, cosa che diminuiva notevolmente l'efficacia
+del firewall.</P>
+
+<H3>Da Internet alla DMZ</H3>
+
+<P>Andiamo avanti ora con la configurazione della nostra
+dmz. Abbiamo detto che da internet saranno accessibili i seguenti
+servizi:
+<UL>
+<LI>server web</LI>
+<LI>server smtp</LI>
+<LI>server dns</LI>
+<LI>server ftp</LI>
+</UL>
+
+Che si traduce linearmente in qualcosa del tipo:
+<BLOCKQUOTE><CODE>
+<PRE>
+54: iptables -A inetdmz -s 192.168.200.0/24 -j DROP
+55: iptables -A inetdmz -s 123.15.67.9/29 -j DROP
+56: iptables -A inetdmz -p tcp -d nostro.server.web --dport www -j ACCEPT
+57: iptables -A inetdmz -p tcp -d nostro.server.smtp --dport smtp -j ACCEPT
+58: iptables -A inetdmz -p tcp -d nostro.dns --dport domain -j ACCEPT
+59: iptables -A inetdmz -p udp -d nostro.dns --dport domain -j ACCEPT
+60: iptables -A inetdmz -p tcp -d nostro.ftpserver --dport ftp -j ACCEPT 
+61: iptables -A inetdmz -m state --state ESTABLISHED,RELATED
+62: iptables -A inetdmz -p tcp -j REJECT --reject-with tcp-reset
+</PRE>
+</CODE></BLOCKQUOTE>
+
+In questo caso, la prima regola &egrave; un po' superflua ma estremamente
+importante. I nostri server, infatti, potrebbero essere configurati per essere un 
+po' meno restrittivi nei confronti dei nostri utenti. Se qualcun altro
+riuscisse da internet ad usare i nostri indirizzi ip, sarebbe in 
+grado di usufruire di questi benefici.</P>
+
+<H3>Dalla DMZ ad Internet</H3>
+
+<P>Dalla DMZ ad Internet, invece
+<BLOCKQUOTE><CODE>
+<PRE>
+63: iptables -A dmsinet -s ! 123.15.67.9/29 -j DROP
+64: iptables -A dmzinet -p tcp -s nostro.server.smtp --dport smtp -j ACCEPT
+65: iptables -A dmzinet -p udp -s nostro.server.dns --dport domain -j ACCEPT
+66: iptables -A dmzinet -p tcp -s nostro.server.dns --dport domain -j ACCEPT
+67: iptables -A dmzinet -p tcp -s nostro.server.proxy --dport www -j ACCEPT
+68: iptables -A dmzinet -m state --state ESTABLISHED,RELATED -j ACCEPT
+69: iptables -A dmzinet -p tcp -j REJECT --reject-with tcp-reset
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Qui qualche commento &egrave; doveroso farlo... </P>
+<P>La prima regola consente al server smtp di inviare la 
+posta elettronica dei nostri utenti.</P>
+<P>Dello stesso tipo sono la seconda e terza regola, che consentono
+invece al dns server di effettuare delle query ricorsive ed eventualmente
+degli zone transfer. </P>
+<P>La quarta regola, infine, &egrave; quella che consente al proxy server di uscire
+all'esterno a procurarsi le pagine non in cache. Attenzione, per&ograve;, che 
+a secondo delle configurazioni del vostro proxy server, potrebbe essere
+necessario aprire pi&ugrave; porte (per fare comunicare pi&ugrave; proxy tra di loro,
+per consentire l'utilizzo al proxy del protocollo ftp...).</P>
+<P>Le ultime due sono le solite regole:
+consenti le risposte alle richieste effettuate, chiudi le connessioni
+tcp vietate.</P>
+
+
+<H3>Traffico da e per il firewall</H3>
+
+<P>Come ultima cosa, ci rimane da filtrare il traffico originato o destinato
+al firewall direttamente.
+Giusto a titolo esemplificativo, ecco alcune regole:
+<BLOCKQUOTE><CODE>
+<PRE>
+71: iptables -A INPUT -m limit --limit 10/min -p tcp --syn --dport ssh -j ACCEPT
+72: iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+73: iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+74: iptables -A INPUT -p tcp -j REJECT --reject-with tcp-reset
+
+75: iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Buona norma sarebbe quello di consentire il meno possibile verso il 
+firewall, e di bloccare tutto ci&ograve; che pu&ograve; da lui essere originato.
+In questo caso, viene accettato il traffico ssh ed i ping (non sempre una buona
+idea) e tutto il traffico relativo, mentre in uscita vengono consentite solo le risposte ai
+pacchettini ricevuti. Se utilizzate demoni come zebra o simili, potrebbe essere
+necessario aprire pi&ugrave; porte ed allentare un po' la cintura soprattutto per quanto
+riguarda icmp. Ricordatevi inoltre che se non viene specificata esplicitamente
+una interfaccia, la catena di INPUT e di OUTPUT determineranno il comportamento
+di <B>input e output</B> da tutte le interfacce (compreso il loopback!!!). State
+quindi molto attenti a quello che fate.</P>
+<P>Potete vedere anche l'utilizzo di un nuovo
+modulo: il limit, che consente di impostare dei limiti di frequenza,
+e per la prima volta dell'opzione (tcp) --syn, che seleziona soltanto
+le nuove connessioni (i famosi pacchettini ``mandami il tuo numero'').
+Questo per evitare un problema con ssh segnalato diverso tempo fa (e probabilmente
+gi&agrave; corretto) per cui in determinate condizioni e con reti molto veloci
+era possibile fare hijacking di una connessione tentando di indovinare
+alcuni parametri. </P>
+<P>Ultima cosa importante da dire prima di passare ad altro: a differenza
+da ipchains, in iptables ci&ograve; che non &egrave; esplicitamente consentito non passa (o
+vice versa, a secondo della policy). Per esempio, nel nostro caso un client
+interno alla rete non potrebbe ``pingare'' alcun server all'esterno n&eacute; sarebbe
+in grado di utilizzare altri messaggi ICMP che non siano imparentati (related)
+con connessioni esistenti.</P>
+<P>Con questo paragrafo viene chiuso l'argomento filtraggio. Nel prossimo paragrafo
+si parler&agrave; infatti del NAT e di come fare quelle ``deviazioni'' di cui 
+ci siamo temporaneamente dimenticati.</P>
+<P> 
+Lo scopo era quello di introdurre l'utente all'uso di
+iptables e di metterlo nelle condizioni di poter leggere facilmente le pagine
+del manuale, dove pu&ograve; trovare un elenco di tutti i possibili match
+che si possono effettuare (divisi per protocollo e modulo) e di tutti
+i target che si possono utilizzare. Per le target extension installate
+con il patch-o-matic, riferitevi alla documentazione fornita.</P>
+<P> </P>
+
+<HR>
+<A HREF="iptables4fun-29.html">Avanti</A>
+<A HREF="iptables4fun-27.html">Indietro</A>
+<A HREF="iptables4fun.html#toc8">Indice</A>
+</BODY>
+</HTML>

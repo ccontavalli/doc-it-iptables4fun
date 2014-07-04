@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Preparare il proprio sistema: Procurarsi i sorgenti</TITLE>
+ <LINK HREF="iptables4fun-8.html" REL=next>
+ <LINK HREF="iptables4fun-6.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc4" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-8.html">Avanti</A>
+<A HREF="iptables4fun-6.html">Indietro</A>
+<A HREF="iptables4fun.html#toc4">Indice</A>
+<HR>
+<H2>4.1 <A HREF="iptables4fun.html#toc4.1">Procurarsi i sorgenti</A></H2>
+
+<P>Prima di iniziare a ricompilare, potrebbe essere utile procurarsi
+i sorgenti dei vari programmi. Come prima cosa quindi, potreste voler scaricare:
+<UL>
+<LI>Gli ultimi sorgenti del kernel 
+<A HREF="http://www.kernel.org">http://www.kernel.org</A> di 
+linux, oppure gli ultimi forniti con la vostra distribuzione (apt-cache search kernel-source;
+apt-get install kernel-source-2.4.x).</LI>
+<LI>L'ultima versione di iptables disponibile su 
+<A HREF="http://www.iptables.org">http://www.iptables.org</A>.</LI>
+<LI>L'ultima versione del patch-o-matic, disponibile su 
+<A HREF="ftp://ftp.netfilter.org/pub/patch-o-matic/">ftp://ftp.netfilter.org/pub/patch-o-matic/</A>.</LI>
+<LI>L'ultima versione del pacchetto iproute, disponibile su 
+<A HREF="ftp://ftp.inr.ac.ru/ip-routing/">ftp://ftp.inr.ac.ru/ip-routing/</A>.</LI>
+</UL>
+
+Ok, verificate quindi di avere tutto il necessario a disposizione per ricompilare 
+(gcc, make, binutils, libncurses, ncurses-dev, modutils...) e date un'occhiata ai vari 
+README, Changes o INSTALL per evitare di incappare in qualche incompatibilit&agrave; e per verificare 
+di avere eventuali librerie (o tools necessari) installati.</P>
+<P>Spostatevi quindi in /usr/src o in una directory che vi fa comodo e decomprimete
+tutti i vari .tar.gz o .tar.bz2, con i soliti 
+<BLOCKQUOTE><CODE>
+<PRE>
+  # tar -xjf file.tar.bz2
+</PRE>
+</CODE></BLOCKQUOTE>
+
+oppure
+<BLOCKQUOTE><CODE>
+<PRE>
+  # tar -xzf file.tar.gz
+</PRE>
+</CODE></BLOCKQUOTE>
+
+supponendo che stiate utilizzando una versione di GNU tar relativamente recente.
+Ricordatevi, inoltre, che per ricompilare il kernel vi servir&agrave; per lo meno 
+gcc, make, le binutils e gli header delle libncurses (nonch&eacute; qualche
+tool che sicuramente ho dimenticato).</P>
+
+<H3>Se usate debian...</H3>
+
+<P>Andate in /usr/src e date:
+<BLOCKQUOTE><CODE>
+<PRE>
+        # apt-get install gcc make binutils libncurses5-dev
+        # apt-get install kernel-source-2.4.x
+        # apt-get build-dep kernel-source-2.4.x
+        # apt-get install kernel-package
+        # tar -xjf ./kernel-source-2.4.x.tar.bz2 &amp;
+
+        # apt-get source iptables
+        # apt-get build-dep iptables
+
+        # apt-get source iproute
+        # apt-get build-dep iproute
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<HR>
+<A HREF="iptables4fun-8.html">Avanti</A>
+<A HREF="iptables4fun-6.html">Indietro</A>
+<A HREF="iptables4fun.html#toc4">Indice</A>
+</BODY>
+</HTML>

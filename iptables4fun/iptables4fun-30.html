@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: NAT con iptables: Dalla teoria alla pratica</TITLE>
+ <LINK HREF="iptables4fun-31.html" REL=next>
+ <LINK HREF="iptables4fun-29.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc9" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-31.html">Avanti</A>
+<A HREF="iptables4fun-29.html">Indietro</A>
+<A HREF="iptables4fun.html#toc9">Indice</A>
+<HR>
+<H2>9.1 <A HREF="iptables4fun.html#toc9.1">Dalla teoria alla pratica</A></H2>
+
+<P>Passando dalla teoria alla pratica, occorre prima di tutto parlare in maniera un pochettino pi&ugrave; approfondita
+dei target di default messi a disposizione dalla tabella di NAT.</P>
+<P>
+<UL>
+<LI>SNAT: serve per modificare il mittente di un pacchetto (l'indirizzo ip sorgente). Viene utilizzato nella
+catena di POSTROUTING proprio perch&eacute; il cambiare il mittente non interferisce sulla scelta dell'interfaccia
+da utilizzare per raggiungere il destinatario. Consente anche di modificare manualmente la porta sorgente
+di un pacchetto. Attenzione! Funziona solo con indirizzi ip statici!</LI>
+<LI>DNAT: serve per modificare il destinatario di un pacchetto (l'indirizzo ip destinatario). Viene utilizzato
+nella catena di PREROUTING in quanto la modifica deve essere effettuata prima di decidere da che parte
+fare uscire il pacchettino. E' possibile inoltre specificare una diversa porta di destinazione.</LI>
+<LI>MASQUERADE: &egrave; un tipo particolare di SNAT: fa in modo che i pacchettini abbiano come mittente l'indirizzo
+IP della interfaccia di rete dalla quale usciranno. Si utilizza nella tabella di POSTROUTING (modifica il
+mittente) e viene utilizzato al posto dello SNAT su interfacce con IP assegnato dinamicamente, ad esempio
+tramite dhcp o bootp.</LI>
+<LI>REDIRECT: &egrave; una versione semplificata del DNAT mantenuta pi&ugrave; che altro per motivi di compatibilit&agrave; e fa in
+modo che il pacchettino venga rediretto sulla macchina locale (127.0.0.1) ad una porta specifica. 
+Equivale a qualcosa
+del tipo: -j DNAT --to 127.0.0.1:porta &lt;--&gt; -j REDIRECT --to-ports porta.</LI>
+</UL>
+
+Esistono molti altri target che possono essere aggiunti tramite il patch-o-matic adatti a tutte
+le esigenze. Date un'occhiata al manuale di iptables ed alle informazioni mostrate sullo schermo
+durante l'aggiornamento di iptables per maggiori informazioni.</P>
+<P>Tornando invece al nostro esempio (presentato nei paragrafi sul filtraggio), &egrave; per noi indispensabile 
+utilizzare il NAT in quanto:
+<UL>
+<LI> dobbiamo ``deviare'' tutti le connessioni web verso internet sul nostro proxy server che si 
+trova nella dmz (transparent proxy).  </LI>
+<LI> dobbiamo fare in modo che la nostra rete interna che utilizza indirizzi ip di classe 192.168.200.x 
+(indirizzi per reti private) possa navigare su internet.</LI>
+</UL>
+</P>
+<P>Avendo per&ograve; spesso a che fare con reti di discrete dimensioni dove il
+dhcp &egrave; raramente utilizzato, mi piace aggiungere alcune regole per rendere
+le macchine ``indipendenti'' dalle modifiche del provider di turno 
+o eventuali riconfigurazioni della rete (vi &egrave; mai capitato di dover 
+cambiare l'ip del dns su n macchine diverse, dove n tende ad infinito?).</P>
+<P>Per fare questo normalmente si possono utilizzare diversi approcci:
+<UL>
+<LI>Se la rete &egrave; divisa in diverse sottoreti (subnet), si possono
+``inventare'' due indirizzi ip che non risiedano su nessuna delle
+nostre reti ed impostare tutti i client per utilizzare quegli indirizzi
+ip come dns primario e secondario.</LI>
+<LI>Si possono semplicemente deviare <B>tutti</B> i pacchetti destinati
+ad un dns verso il dns reale (c'&egrave; il problema del dns secondario,
+per&ograve;).</LI>
+<LI>Semplicemente ignorare il problema inizialmente ed in caso di 
+cambio di ISP aggiungere due regole per deviare il traffico
+sui nuovi dns.</LI>
+</UL>
+
+Trattandosi comunque di regole abbastanza semplici ed interessanti dal 
+punto di vista didattico, verranno presentate tutte e tre le soluzioni
+(la prima &egrave; quasi perfettamente equivalente alla terza).  </P>
+<P>Vediamo quindi le nostre prime regole di NAT:        
+<BLOCKQUOTE><CODE>
+<PRE>
+77: iptables -t nat -A PREROUTING -p tcp -i eth0 --dport www -j DNAT --to nostro.proxy.server:8080
+78: iptables -t nat -A POSTROUTING -o eth2 -s 192.168.200.0/24 -j SNAT --to 123.45.68.1
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Ok, la prima regola dice, a parole, di inserire una regola nella tabella di nat per intercettare tutti 
+i pacchetti provenienti da eth0 e destinati ad un server www (porta 80 -- prima che venga deciso
+da che interfaccia farli uscire) e di deviarli sul nostro.proxy.server porta 8080. </P>
+<P>Attenzione per&ograve; che proxy server come squid devono essere configurati per poter accettare
+connessioni deviate in questo modo, in quanto non seguono perfettamente lo standard utilizzato
+dai proxy (leggete la documentazione di squid!).</P>
+<P>Tornando a parlare delle regole, la seconda dice di modificare il mittente (l'indirizzo ip sorgente) dei
+pacchetti uscenti da eth2 e provenienti dalla nostra LAN (192.168.200.0/24) con l'indirizzo
+ip esterno del nostro firewall. </P>
+<P>A proposito di queste due regole ci sono alcune cose importanti da dire:
+<UL>
+<LI>Prima di tutto, nella prima regola si &egrave; reso necessario indicare
+la scheda di rete sorgente in modo da non deviare le richieste del 
+nostro proxy server. Per la cronaca: quando facciamo una richiesta 
+al nostro proxy server, questo se non ha le pagine richieste in cache
+dovr&agrave; collegarsi al server web richiesto, e dobbiamo quindi stare 
+attenti a non deviare anche le richieste provenienti dal proxy (si creerebbe una
+sorta di circolo vizioso (loop) n&eacute; molto bello n&eacute; molto positivo per
+la salute della nostra rete).</LI>
+<LI>Nella seconda regola, invece, &egrave; importante fare in modo che soltanto
+i pacchetti provenienti dalla nostra rete interna (e non dalla DMZ!)
+vengano modificati e soltanto quelli uscenti verso internet (quelli
+destinati al nostro proxy non devono essere toccati: saremo cos&igrave; in
+grado di fare un minimo di statistiche sui siti pi&ugrave; interessanti per
+i nostri utenti).</LI>
+<LI>Nella seconda regola, &egrave; fondamentale fare in modo che i pacchetti abbiano
+come mittente uno degli indirizzi ip esterni del firewall. Per chi si
+accontenta di poche parole, basti dire che in caso contrario non funzionerebbe.
+Per tutti gli altri, invece, il motivo sta nell'arp, address resolution protocol.
+Ovvero, se l'indirizzo ip non fosse uno di quelli del firewall (aggiunti con
+ip o ifconfig, per intenderci), il firewall
+non risponderebbe alle query ARP, ed i pacchetti uscirebbero felici dalla
+rete ma il gateway di default del nostro firewall non sarebbe in grado
+di rimandare i pacchetti indietro. Come sempre, linux lascia la massima 
+libert&agrave;: sta all'amministratore evitare di farsi male con errori di questo
+tipo.</LI>
+<LI>Riferendosi al funzionamento del SNAT come prima descritto, a volte (in 
+reti particolarmente affollate) potrebbe essere indispensabile utilizzare
+pi&ugrave; indirizzi ip per effettuare lo SNAT (il numero di porte disponibili
+ed utilizzabili su un host per fare il giochettino descritto &egrave; abbastanza limitato).
+Il target fortunatamente consente di indicare pi&ugrave; indirizzi ip (date un'occhiata
+al manuale di iptables).
+<P> L'esperienza per&ograve; mi insegna che in tali reti si
+supererebbe molto prima il numero massimo di connessioni tracciabili rispetto alle porte
+disponibili. Per aumentare questo numero, basta dare un:
+<BLOCKQUOTE><CODE>
+<PRE>
+  echo 16384 &gt; /proc/sys/net/ipv4/ip_conntrack_max
+</PRE>
+</CODE></BLOCKQUOTE>
+
+o, in maniera del tutto equivalente, scrivere qualcosa come
+<BLOCKQUOTE><CODE>
+<PRE>
+net.ipv4.ip_conntrack_max=16384
+</PRE>
+</CODE></BLOCKQUOTE>
+
+nel file /etc/sysctl.conf.
+Comunque sia, tenete presente che gi&agrave; una rete di 100-200 computer potrebbe
+aver bisogno di essere in grado di tracciare pi&ugrave; connessioni, mentre non 
+mi &egrave; ancora capitato di dover utilizzare pi&ugrave; di un indirizzo ip in uscita.</P>
+<P>Il kernel comunque, vi avviser&agrave; in caso fosse necessario aumentare questi
+limiti, con un messaggio nei log per ogni connessione scartata.</P>
+</LI>
+<LI>Nell'ultima regola, infine, se avessimo avuto a disposizione una connessione
+dial-up (come isdn) o tramite adsl con indirizzi ip assegnati dinamicamente,
+si sarebbe dovuto usare come target ``MASQUERADE'', senza per&ograve; specificare
+alcun indirizzo ip sorgente. Attenzione! Lo SNAT proprio non funziona su
+interfacce con ip dinamici assegnati! Potete vedere un esempio di come utilizzare
+il target MASQUERADE in uno dei paragrafi introduttivi...</LI>
+<LI>Per quanto riguarda le regole di NAT e filtraggio, &egrave; fondamentale notare
+(per poter ottenere un firewall funzionante) che le <B>regole di firewalling, inserite 
+nella tabella di filter, vedranno i pacchetti con i loro indirizzi reali</B>. Nel
+caso di DNAT, per esempio, il filtro vedr&agrave; pacchetti con la destinazione
+modificata (in questo caso, il proxy server). In caso invece di SNAT, il filtro
+vedr&agrave; come mittente l'indirizzo reale del mittente (non quello modificato),
+come se il codice di filtraggio fosse inserito dopo la catena di PREROUTING ma
+prima della catena di POSTROUTING.</LI>
+</UL>
+
+Volendo fare il giochettino con il DNS, le due possibilit&agrave; sono realizzabili
+utilizzando o queste regole:
+<BLOCKQUOTE><CODE>
+<PRE>
+80: iptables -t nat -A PREROUTING -p tcp --dport domain -j DNAT --to nostro.dns
+81: iptables -t nat -A PREROUTING -p udp --dport domain -j DNAT --to nostro.dns
+</PRE>
+</CODE></BLOCKQUOTE>
+
+che deviano tutto il traffico verso un qualsiasi dns su nostro.dns,
+o queste altre, che similmente intercettano il traffico verso un dns 
+da noi specificato e deviano il traffico verso il nostro dns reale:
+<BLOCKQUOTE><CODE>
+<PRE>
+83: iptables -t nat -A PREROUTING -p tcp -d un.dns --dport domain -j DNAT --to nostro.dns
+84: iptables -t nat -A PREROUTING -p udp -d un.dns --dport domain -j DNAT --to nostro.dns
+</PRE>
+</CODE></BLOCKQUOTE>
+
+A questo punto, non vi rimane che divertirvi con i pacchetti che fluiscono dalle
+vostre reti...</P>
+
+<HR>
+<A HREF="iptables4fun-31.html">Avanti</A>
+<A HREF="iptables4fun-29.html">Indietro</A>
+<A HREF="iptables4fun.html#toc9">Indice</A>
+</BODY>
+</HTML>

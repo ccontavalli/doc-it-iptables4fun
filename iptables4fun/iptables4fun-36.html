@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Conclusioni</TITLE>
+ <LINK HREF="iptables4fun-35.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc12" REL=contents>
+</HEAD>
+<BODY>
+Avanti
+<A HREF="iptables4fun-35.html">Indietro</A>
+<A HREF="iptables4fun.html#toc12">Indice</A>
+<HR>
+<H2><A NAME="s12">12.</A> <A HREF="iptables4fun.html#toc12">Conclusioni</A></H2>
+
+<P>Le funzioni viste qua sopra non costituiscono probabilmente neanche
+il 25% di tutto ci&ograve; che il kernel 2.4 pu&ograve; fare. Mi basti
+ricordarvi che delle tre tabelle a disposizione ne abbiamo utilizzate
+soltanto 2 e che molte delle nuove funzionalit&agrave; sono state soltanto
+accennate, senza dimenticare poi che nulla &egrave; stato visto in proposito
+del QoS e del fair queuing. Giusto per stuzzicare la vostra curiosit&agrave;,
+la tabella di mangle serve per ``maneggiare'' i pacchetti in maniera
+pi&ugrave; sottile, in modo che comandi come ip e tc possano interagire
+tra di loro distinguendo pacchetti scelti da iptables o per modificare
+i parametri del pacchetto (modulo ttl &amp; co.).  </P>
+<P>Giusto per fare un accenno, il fair queuing si gestisce attraverso
+il comando tc, e consente di suddividere tutti i pacchetti in transito
+in classi, dove ogni classe pu&ograve; avere una certa larghezza di banda
+riservata o una certa priorit&agrave;. Si potrebbe poi parlare di funzioni
+come il proxy_arp, che in combinazione con il modulo ttl consentono
+di creare dei firewall (praticamente) invisibili.</P>
+<HR>
+Avanti
+<A HREF="iptables4fun-35.html">Indietro</A>
+<A HREF="iptables4fun.html#toc12">Indice</A>
+</BODY>
+</HTML>

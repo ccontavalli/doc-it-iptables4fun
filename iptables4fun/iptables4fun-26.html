@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.69">
+ <TITLE>IPtables for Fun -- Implementare un firewall in linux: Filtrare il traffico con iptables: Definizione delle policy</TITLE>
+ <LINK HREF="iptables4fun-27.html" REL=next>
+ <LINK HREF="iptables4fun-25.html" REL=previous>
+ <LINK HREF="iptables4fun.html#toc8" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="iptables4fun-27.html">Avanti</A>
+<A HREF="iptables4fun-25.html">Indietro</A>
+<A HREF="iptables4fun.html#toc8">Indice</A>
+<HR>
+<H2>8.4 <A HREF="iptables4fun.html#toc8.4">Definizione delle policy</A></H2>
+
+<P>Iniziamo quindi a parlare di iptables, ed iniziamo proprio definendo la ``politica'' di default
+delle catene di base, cio&egrave; l'azione che deve essere presa nel caso in cui nessuna regola
+si possa applicare al particolare pacchetto. Per fare questo, basta dare:
+<BLOCKQUOTE><CODE>
+<PRE>
+12: iptables -P INPUT DROP
+13: iptables -P OUTPUT DROP
+14: iptables -P FORWARD DROP
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Qui vediamo proprio che se un match non viene trovato, i pacchetti devono essere ``buttati via'' (DROP),
+proprio come se non fossero mai stati ricevuti (o richiesto l'invio, a secondo della catena).</P>
+<P>Oltre a DROP, esistono molte altre azioni che &egrave; possibile specificare, dove le principali sono:
+<UL>
+<LI>ACCEPT -- lascia passare il pacchetto</LI>
+<LI>QUEUE -- passa il pacchetto ad un programma in userspace</LI>
+</UL>
+  
+Di base, le due azioni che userete di pi&ugrave; sono ACCEPT e DROP. QUEUE difficilmente
+lo userete. Spesso per&ograve; vi capiter&agrave; di usare delle ``target extensions'', ossia
+dei particolari target che sono forniti tramite dei moduli esterni (vi ricordate
+tutte le patch applicate col patch-o-matic? Molte hanno dato origine a dei nuovi
+target). </P>
+<P>E' buona abitudine mettere come politica di default quella di buttare via i pacchetti,
+dopodich&egrave; consentire esplicitamente tutto ci&ograve; che vogliamo fare passare.
+Questo principalmente per due motivi:
+<UL>
+<LI>&egrave; facile rendersi conto di cosa si &egrave; dimenticato chiuso (molti dei
+vostri utenti vi telefoneranno fino alla saturazione delle linee telefoniche pur di vedere il
+loro client preferito funzionare), mentre &egrave; molto pi&ugrave; difficile
+vedere cosa si &egrave; dimenticato aperto.</LI>
+<LI>non &egrave; facile riconoscere tutto ci&ograve; che c'&egrave; da bloccare. Per esempio,
+Usando una politica
+di ACCEPT, &egrave; estremamente difficile prevedere ci&ograve; che potr&agrave; essere
+utilizzato per aggirare le restrizioni, contando che spesso non &egrave; obbligatorio
+seguire gli standard e una persona un po' sveglia potrebbe modificare il kernel di 
+due macchine linux per utilizzare un protocollo che nulla ha a che vedere col tcp
+e che mai noi ci saremmo immaginati di dover bloccare (trattandosi, magari, di un
+protocollo inventato di sana pianta)...</LI>
+</UL>
+
+Un comando che vi pu&ograve; essere utile nello scrivere le regole si chiama ``nstreams'':
+questo stamper&agrave; a video l'elenco di tutte le connessioni in corso su una rete...</P>
+
+<HR>
+<A HREF="iptables4fun-27.html">Avanti</A>
+<A HREF="iptables4fun-25.html">Indietro</A>
+<A HREF="iptables4fun.html#toc8">Indice</A>
+</BODY>
+</HTML>
