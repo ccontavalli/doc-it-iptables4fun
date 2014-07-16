@@ -8,6 +8,15 @@ OPT_TXT = --filter -b 2 -P '\-T latin1'
 OPT_TEX = --output=tex 
 OPT_PS = -z 
 
+define SED_EXPRESSION
+/<\/HEAD>/{
+  r ANALYTICS
+  a </HEAD>
+  d
+}
+endef
+export SED_EXPRESSION
+
   # Get the first sgml file in the directory
 source_ext = $(word 1,$(wildcard *.sgml)) 
 
@@ -59,6 +68,9 @@ $(source)/$(source).html: $(source).sgml Makefile
 	 sgml2html $(OPT_SGML) $(OPT_HTML) ../$(source).sgml &> ../log.sgml-html; \
 	 ln -fs ./$(source).html ./index.html;\
 	 cd ..
+	@echo "  Adding analytics code...";\
+	 sed -i -e "$$SED_EXPRESSION" ./$(source)/$(source).html
+
 
 $(source).html.tar.gz: $(source).sgml $(source)/$(source).html Makefile
 	@echo Generating tar.gz of the html version...; \
